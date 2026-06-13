@@ -188,6 +188,72 @@ function saveSessions(sessions: ChatSession[]) {
 
 let mockSessions: ChatSession[] = loadSessions();
 
+// --- Reminders Management Section ---
+interface Reminder {
+  id: string;
+  role: 'director' | 'accountant';
+  text: string;
+  frequency: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+const REMINDERS_FILE = path.join(process.cwd(), "node_modules", ".cache", "reminders_store.json");
+
+const defaultReminders: Reminder[] = [
+  {
+    id: "rem-1",
+    role: "director",
+    text: "Контроль валютного коридора и лимитов овердрафта",
+    frequency: "Каждый понедельник в 09:00",
+    isActive: true,
+    createdAt: "13.06.2026, 12:00"
+  },
+  {
+    id: "rem-2",
+    role: "accountant",
+    text: "Проверка сроков регистрации валютных договоров в Нацбанке РБ",
+    frequency: "Каждое 15-е число месяца",
+    isActive: true,
+    createdAt: "13.06.2026, 12:05"
+  },
+  {
+    id: "rem-3",
+    role: "accountant",
+    text: "Уплата налогов и отчетов УСН",
+    frequency: "Каждый квартал до 20-го числа",
+    isActive: true,
+    createdAt: "13.06.2026, 12:10"
+  }
+];
+
+function loadReminders(): Reminder[] {
+  try {
+    if (fs.existsSync(REMINDERS_FILE)) {
+      const data = fs.readFileSync(REMINDERS_FILE, "utf-8");
+      return JSON.parse(data);
+    }
+  } catch (err) {
+    console.error("Error loading reminders from JSON file:", err);
+  }
+  return defaultReminders;
+}
+
+function saveReminders(reminders: Reminder[]) {
+  try {
+    const dir = path.dirname(REMINDERS_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(REMINDERS_FILE, JSON.stringify(reminders, null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error saving reminders to JSON file:", err);
+  }
+}
+
+let mockReminders: Reminder[] = loadReminders();
+// --- End Reminders Section ---
+
 // Glossary of corporate finance terms in Belarus
 const glossary: Record<string, { term: string, short: string, full: string }> = {
   "овердрафт": {
@@ -264,6 +330,64 @@ app.post("/api/sessions/new", (req, res) => {
   res.json(newSession);
 });
 
+// API: Get reminders for role
+app.get("/api/reminders", (req, res) => {
+  const { role } = req.query;
+  if (role) {
+    res.json(mockReminders.filter(r => r.role === role));
+  } else {
+    res.json(mockReminders);
+  }
+});
+
+// API: Create reminder
+app.post("/api/reminders", (req, res) => {
+  const { role, text, frequency } = req.body;
+  if (!text || !frequency) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  const newReminder: Reminder = {
+    id: "rem-" + Date.now(),
+    role: role || "director",
+    text,
+    frequency,
+    isActive: true,
+    createdAt: new Date().toLocaleDateString("ru-RU") + " " + new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+  };
+  mockReminders.push(newReminder);
+  saveReminders(mockReminders);
+  res.json({ success: true, reminder: newReminder });
+});
+
+// API: Update reminder
+app.put("/api/reminders/:id", (req, res) => {
+  const { id } = req.params;
+  const { text, frequency, isActive } = req.body;
+  const reminder = mockReminders.find(r => r.id === id);
+  if (reminder) {
+    if (text !== undefined) reminder.text = text;
+    if (frequency !== undefined) reminder.frequency = frequency;
+    if (isActive !== undefined) reminder.isActive = isActive;
+    saveReminders(mockReminders);
+    res.json({ success: true, reminder });
+  } else {
+    res.status(404).json({ error: "Reminder not found" });
+  }
+});
+
+// API: Delete reminder
+app.delete("/api/reminders/:id", (req, res) => {
+  const { id } = req.params;
+  const index = mockReminders.findIndex(r => r.id === id);
+  if (index !== -1) {
+    const deleted = mockReminders.splice(index, 1);
+    saveReminders(mockReminders);
+    res.json({ success: true, deleted: deleted[0] });
+  } else {
+    res.status(404).json({ error: "Reminder not found" });
+  }
+});
+
 // Helper to build deep links with prefilled GET parameters pointing to official SberBusiness payments
 function getPaymentUrl(type: string, params: { recipientName: string, recipientUnp: string, recipientIban: string, recipientBank: string, amount: string, purpose: string }): string {
   const baseUrls: Record<string, string> = {
@@ -290,7 +414,7 @@ function getPaymentUrl(type: string, params: { recipientName: string, recipientU
 }
 
 // Helper for High-Fidelity Mock Response Generation
-function generateMockResponse(role: string, prompt: string, isOperatorRequest: boolean, currentUrl: string, detectedTerms: string[]): { content: string; callOperator: boolean; operatorSummary: any; detectedTerms: string[]; paymentDraft?: any } {
+function generateMockResponse(role: string, prompt: string, isOperatorRequest: boolean, currentUrl: string, detectedTerms: string[]): { content: string; callOperator: boolean; operatorSummary: any; detectedTerms: string[]; paymentDraft?: any; reminderAction?: any } {
   const kb = getKnowledgeBase();
   let reply = "";
   let matchedFaq = null;
@@ -306,9 +430,75 @@ function generateMockResponse(role: string, prompt: string, isOperatorRequest: b
   const isHowToQuestion = /как|инструкция|правило|почему|зачем|справка/gi.test(pLower);
   const isListRequest = (/список/gi.test(pLower) || /реестр/gi.test(pLower) || /покажи.*контр/gi.test(pLower) || /выведи/gi.test(pLower) || /всех/gi.test(pLower)) && !isPaymentOrTransfer;
 
-  const wantsPaymentDraft = isPaymentOrTransfer && !isHowToQuestion;
+  const isCreateReminder = /напоминай|создай напоминание|добавь напоминание|напомни|запланируй напоминание/gi.test(pLower);
+  const isDeleteReminder = /удали напоминание|выключи напоминание|удалить напоминание/gi.test(pLower);
 
-  if (wantsPaymentDraft) {
+  const wantsPaymentDraft = isPaymentOrTransfer && !isHowToQuestion && !isCreateReminder && !isDeleteReminder;
+  let reminderAction: any = null;
+
+  if (isCreateReminder) {
+    let text = "Новое напоминание";
+    let frequency = "Каждый первый понедельник";
+
+    const freqMatch = prompt.match(/(каждый[^\s,]*\s+[^\s,]*\s+[^\s,]*|раз в[^\s,]*\s+[^\s,]*|ежемесячно[^\s,]*|еженедельно[^\s,]*|каждое[^\s,]*\s+[^\s,]*|каждый первый понедельник|каждый третий вторник)/i);
+    if (freqMatch) {
+      frequency = freqMatch[0];
+    } else {
+      const matchSchedule = pLower.match(/(каждый [а-я]+|раз в [а-я]+|каждое \d+-е|каждое \d+ число|каждый первый [а-я]+|каждый второй [а-я]+|каждый третий [а-я]+|каждый четвертый [а-я]+)/i);
+      if (matchSchedule) {
+         frequency = matchSchedule[0];
+      }
+    }
+
+    let cleanedText = prompt;
+    cleanedText = cleanedText.replace(/напоминай|напоминайте|создай напоминание|добавь напоминание|напомни|запланируй напоминание|пожалуйста/gi, "");
+    cleanedText = cleanedText.replace(frequency, "");
+    cleanedText = cleanedText.replace(/[.,!?]/g, "").trim();
+    if (cleanedText.length > 3) {
+      text = cleanedText.charAt(0).toUpperCase() + cleanedText.slice(1);
+    }
+
+    reminderAction = {
+      action: "create",
+      text,
+      frequency
+    };
+
+    // Persist in mock Reminders list
+    const newRem: Reminder = {
+      id: "rem-" + Date.now(),
+      role: role === "director" ? "director" : "accountant",
+      text,
+      frequency,
+      isActive: true,
+      createdAt: new Date().toLocaleDateString("ru-RU") + " " + new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+    };
+    mockReminders.push(newRem);
+    saveReminders(mockReminders);
+
+    reply = `🔔 **Напоминание успешно создано!**\n\nЯ зафиксировал новую задачу в СберБизнесе:\n• **Напоминание:** _${text}_\n• **Периодичность:** _${frequency}_\n\nВы всегда можете управлять вашими напоминаниями через чат или в панели слева.`;
+  } else if (isDeleteReminder) {
+    let textToFind = prompt.replace(/удали напоминание|выключи напоминание|удалить напоминание/gi, "").replace(/[.,!?]/g, "").trim();
+
+    // Find matching reminder
+    const idx = mockReminders.findIndex(r =>
+      r.role === (role === "director" ? "director" : "accountant") &&
+      (r.text.toLowerCase().includes(textToFind.toLowerCase()) || textToFind.toLowerCase().includes(r.text.toLowerCase()))
+    );
+
+    if (idx !== -1) {
+      const deleted = mockReminders.splice(idx, 1);
+      saveReminders(mockReminders);
+      reminderAction = {
+        action: "delete",
+        id: deleted[0].id,
+        text: deleted[0].text
+      };
+      reply = `🗑️ **Напоминание удалено!**\n\nЯ успешно удалил напоминание: _"${deleted[0].text}"_.`;
+    } else {
+      reply = `🔍 **Напоминание не найдено.**\n\nЯ не смог найти активное напоминание, похожее на _"${textToFind}"_. Пожалуйста, проверьте список в левой панели.`;
+    }
+  } else if (wantsPaymentDraft) {
     // Find matched counterparty
     let matchedC = activeCounterparties.find(c =>
       pLower.includes(c.name.toLowerCase().replace(/['"«»]/g, "")) ||
@@ -496,7 +686,8 @@ function generateMockResponse(role: string, prompt: string, isOperatorRequest: b
       chatSessionId: "session-fallback-id"
     } : null,
     detectedTerms,
-    paymentDraft
+    paymentDraft,
+    reminderAction
   };
 }
 
@@ -567,6 +758,8 @@ ${JSON.stringify(mockCounterpartiesByRole[role === "director" ? "director" : "ac
    - Принимай это решение интеллектуально, оценивая значение и грамматическую конструкцию фразы пользователя. Никаких простых триггеров на слово "контрагент" быть не должно!
 7. Оформление черновика платежа (paymentDraft):
    Если пользователь просит подготовить платеж, сделать перевод, оформить платежку или перечислить деньги конкретному контрагенту (с указанием контрагента, суммы или назначения платежа), заполни объект paymentDraft в JSON. Извлеки все данные из списка верифицированных контрагентов. Например, если пользователь говорит 'Оплати Белазу 1500 рублей', ты должен сопоставить 'Белаз' с ОАО 'БелАЗ' из списка, подставить его UNP, IBAN и банк, а в поле amount записать '1500'. Если в запросе указана за задолженность, услуги или запчасти, заполни purpose. Если пользователь просто интересуется 'как сделать платеж', paymentDraft должен быть строго null.
+8. Управление напоминаниями (reminderAction):
+   Если пользователь просит создать напоминание (например, "напоминай платить налоги каждый первый понедельник", "напомни проверить счета по пятницам"), ты должен заполнить поле 'reminderAction' как { "action": "create", "text": "Текст напоминания", "frequency": "каждый первый понедельник" }, выделив тему напоминания в 'text' и его периодичность в 'frequency'. Если пользователь просит удалить напоминание (например, "удали напоминание про проверку счетов", "выключи напоминание про налоги"), заполни 'reminderAction' как { "action": "delete", "text": "проверка счетов" }. Твой ответ (в поле 'content') должен подтвердить создание или удаление этого напоминания. Если запрос не связан с напоминаниями, то reminderAction должен быть null.
 
 История переписки для соблюдения контекста диалога:
 ${JSON.stringify(history || [])}
@@ -605,6 +798,17 @@ ${JSON.stringify(history || [])}
                 paymentType: { type: "STRING", description: "Тип документа. Обычно PAYDOCBY" }
               },
               required: ["recipientName", "recipientUnp", "recipientIban", "recipientBank", "amount", "currency", "purpose", "paymentType"]
+            },
+            reminderAction: {
+              type: "OBJECT",
+              description: "Заполняется только если пользователь хочет создать или удалить напоминание. Если запрос не связан с напоминаниями, это поле должно быть null.",
+              properties: {
+                action: { type: "STRING", description: "Действие: 'create' или 'delete'" },
+                text: { type: "STRING", description: "Текст напоминания (например, 'Платить налоги')" },
+                frequency: { type: "STRING", description: "Периодичность напоминания (например, 'каждый первый понедельник')" },
+                id: { type: "STRING", description: "ИД напоминания (если известен, иначе null)" }
+              },
+              required: ["action"]
             }
           },
           required: ["content", "callOperator"]
@@ -616,25 +820,143 @@ ${JSON.stringify(history || [])}
     let callOperator = false;
     let operatorSummary = null;
     let paymentDraft = null;
+    let reminderAction = null;
 
     try {
       const parsedJson = JSON.parse(resultText.trim());
       resultText = parsedJson.content || "";
       callOperator = parsedJson.callOperator || false;
+
       if (parsedJson.paymentDraft) {
         const pd = parsedJson.paymentDraft;
-        const generatedLink = getPaymentUrl(pd.paymentType || "PAYDOCBY", {
-          recipientName: pd.recipientName || "",
-          recipientUnp: pd.recipientUnp || "",
-          recipientIban: pd.recipientIban || "",
-          recipientBank: pd.recipientBank || "",
-          amount: pd.amount || "",
-          purpose: pd.purpose || ""
-        });
-        paymentDraft = {
-          ...pd,
-          link: generatedLink
-        };
+        const pLowerVal = prompt.toLowerCase();
+
+        // 1. Check for explicit transactional/payment action verbs
+        // e.g. "оплати Белазу", "переведи Смирновой", but not informational "как перевести", "почему", "выписка"
+        const hasPaymentVerbs = /\b(оплати|заплати|переведи|перечисли|закинь|выплати|погаси|перевод|оплата)\b/i.test(pLowerVal);
+        const isHowOrInfoQuery = /\b(как|инструкция|справка|почему|правила|выписка)\b/i.test(pLowerVal);
+        const hasDirectPaymentIntent = hasPaymentVerbs && !isHowOrInfoQuery;
+
+        // 2. Reject any drafts filled with generic placeholders, "null" or "undefined" strings/values
+        const hasNullOrUndefinedFields =
+          !pd.recipientName || pd.recipientName.toString().trim() === "" || pd.recipientName.toString().toLowerCase() === "null" || pd.recipientName.toString().toLowerCase() === "undefined" ||
+          !pd.amount || pd.amount.toString().trim() === "" || pd.amount.toString().toLowerCase() === "null" || pd.amount.toString().toLowerCase() === "undefined" || pd.amount.toString().trim() === "0";
+
+        const isValidDraft = pd && !hasNullOrUndefinedFields && hasDirectPaymentIntent;
+
+        if (isValidDraft) {
+          const generatedLink = getPaymentUrl(pd.paymentType || "PAYDOCBY", {
+            recipientName: pd.recipientName || "",
+            recipientUnp: pd.recipientUnp || "",
+            recipientIban: pd.recipientIban || "",
+            recipientBank: pd.recipientBank || "",
+            amount: pd.amount || "",
+            purpose: pd.purpose || ""
+          });
+          paymentDraft = {
+            ...pd,
+            link: generatedLink
+          };
+        } else {
+          paymentDraft = null;
+        }
+      }
+
+      if (parsedJson.reminderAction) {
+        reminderAction = parsedJson.reminderAction;
+        const action = reminderAction.action;
+        if (action === "create") {
+          const pLowerValue = prompt.toLowerCase();
+          const parsedText = reminderAction.text || prompt.replace(/напоминай|напоминайте|создай напоминание|добавь напоминание|напомни|запланируй напоминание/gi, "").trim();
+          const cleanText = parsedText.charAt(0).toUpperCase() + parsedText.slice(1);
+
+          let freq = reminderAction.frequency || "Каждый месяц";
+          // If frequency is missing or very generic, try to extract it from the prompt
+          const freqMatch = prompt.match(/(каждый[^\s,]*\s+[^\s,]*\s+[^\s,]*|раз в[^\s,]*\s+[^\s,]*|ежемесячно[^\s,]*|еженедельно[^\s,]*|каждое[^\s,]*\s+[^\s,]*|каждый первый понедельник|каждый третий вторник|каждый месяц|каждую неделю)/i);
+          if (freqMatch) {
+            freq = freqMatch[0];
+          }
+
+          const newRem: Reminder = {
+            id: "rem-" + Date.now(),
+            role: role === "director" ? "director" : "accountant",
+            text: cleanText,
+            frequency: freq,
+            isActive: true,
+            createdAt: new Date().toLocaleDateString("ru-RU") + " " + new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+          };
+          mockReminders.push(newRem);
+          saveReminders(mockReminders);
+          reminderAction.id = newRem.id;
+          reminderAction.text = cleanText;
+          reminderAction.frequency = freq;
+        } else if (action === "delete") {
+          const textToFind = reminderAction.text || "";
+          const tgtId = reminderAction.id;
+          const idx = mockReminders.findIndex(r =>
+            r.role === (role === "director" ? "director" : "accountant") &&
+            (tgtId ? r.id === tgtId : (r.text.toLowerCase().includes(textToFind.toLowerCase()) || textToFind.toLowerCase().includes(r.text.toLowerCase())))
+          );
+          if (idx !== -1) {
+            const deleted = mockReminders.splice(idx, 1);
+            saveReminders(mockReminders);
+            reminderAction.id = deleted[0].id;
+            reminderAction.text = deleted[0].text;
+          }
+        }
+      }
+
+      // Fallback reinforcement check: if Gemini did NOT return structured reminderAction, but prompt is clearly a reminder intent
+      if (!reminderAction) {
+        const pLowerVal = prompt.toLowerCase();
+        const isCreateReminder = /напоминай|создай напоминание|добавь напоминание|напомни|запланируй напоминание/gi.test(pLowerVal);
+        const isDeleteReminder = /удали напоминание|выключи напоминание|удалить напоминание/gi.test(pLowerVal);
+
+        if (isCreateReminder) {
+          let freq = "Каждый месяц";
+          const freqMatch = prompt.match(/(каждый[^\s,]*\s+[^\s,]*\s+[^\s,]*|раз в[^\s,]*\s+[^\s,]*|ежемесячно[^\s,]*|еженедельно[^\s,]*|каждое[^\s,]*\s+[^\s,]*|каждый первый понедельник|каждый третий вторник|каждый месяц|каждую неделю)/i);
+          if (freqMatch) {
+            freq = freqMatch[0];
+          }
+
+          let extractedText = prompt.replace(/напоминай|напоминайте|создай напоминание|добавь напоминание|напомни|запланируй напоминание/gi, "").replace(freq, "").replace(/[.,!?]/g, "").trim();
+          if (extractedText.length < 3) {
+            extractedText = "Выплата заработной платы / налоги";
+          }
+          const cleanText = extractedText.charAt(0).toUpperCase() + extractedText.slice(1);
+
+          const newRem: Reminder = {
+            id: "rem-" + Date.now(),
+            role: role === "director" ? "director" : "accountant",
+            text: cleanText,
+            frequency: freq,
+            isActive: true,
+            createdAt: new Date().toLocaleDateString("ru-RU") + " " + new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })
+          };
+          mockReminders.push(newRem);
+          saveReminders(mockReminders);
+          reminderAction = {
+            action: "create",
+            id: newRem.id,
+            text: cleanText,
+            frequency: freq
+          };
+        } else if (isDeleteReminder) {
+          let textToFind = prompt.replace(/удали напоминание|выключи напоминание|удалить напоминание/gi, "").replace(/[.,!?]/g, "").trim();
+          const idx = mockReminders.findIndex(r =>
+            r.role === (role === "director" ? "director" : "accountant") &&
+            (r.text.toLowerCase().includes(textToFind.toLowerCase()) || textToFind.toLowerCase().includes(r.text.toLowerCase()))
+          );
+          if (idx !== -1) {
+            const deleted = mockReminders.splice(idx, 1);
+            saveReminders(mockReminders);
+            reminderAction = {
+              action: "delete",
+              id: deleted[0].id,
+              text: deleted[0].text
+            };
+          }
+        }
       }
     } catch (parseEx) {
       console.warn("[Gemini API] Error parsing structured JSON, treating raw text:", parseEx);
@@ -686,7 +1008,8 @@ ${JSON.stringify(history || [])}
       callOperator,
       operatorSummary,
       detectedTerms,
-      paymentDraft
+      paymentDraft,
+      reminderAction
     });
 
   } catch (err: any) {

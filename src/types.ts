@@ -68,3 +68,13 @@ export interface Counterparty {
   status: string;
   balanceContext: string;
 }
+
+export interface Reminder {
+  id: string;
+  role: 'director' | 'accountant';
+  text: string;
+  frequency: string;
+  isActive: boolean;
+  createdAt: string;
+}
+

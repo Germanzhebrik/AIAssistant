@@ -7,7 +7,20 @@ interface PaymentDraftCardProps {
 }
 
 export const PaymentDraftCard: React.FC<PaymentDraftCardProps> = ({ draft }) => {
-  if (!draft) return null;
+  if (
+    !draft ||
+    !draft.recipientName ||
+    draft.recipientName.trim() === "" ||
+    draft.recipientName.toLowerCase() === "null" ||
+    draft.recipientName.toLowerCase() === "undefined" ||
+    !draft.amount ||
+    draft.amount.toString().trim() === "" ||
+    draft.amount.toString().trim() === "0" ||
+    draft.amount.toString().toLowerCase() === "null" ||
+    draft.amount.toString().toLowerCase() === "undefined"
+  ) {
+    return null;
+  }
 
   // Pretty document type label
   const getDocumentLabel = (type: string) => {
