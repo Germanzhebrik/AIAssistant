@@ -48,6 +48,7 @@ import {
 } from "lucide-react";
 import { bankProfiles, glossaryTerms, mockCounterpartiesByRole } from "./data";
 import { Message, ChatSession, Profile, GlossaryTerm, Counterparty } from "./types";
+import { PaymentDraftCard } from "./components/PaymentDraftCard";
 
 export default function App() {
   // Profiles & Roles State
@@ -374,7 +375,8 @@ export default function App() {
           content: reply.content,
           timestamp: new Date().toLocaleTimeString("ru-RU", { hour: '2-digit', minute: '2-digit' }),
           callOperator: reply.callOperator,
-          operatorSummary: reply.operatorSummary
+          operatorSummary: reply.operatorSummary,
+          paymentDraft: reply.paymentDraft || undefined
         };
 
         // Sync assistant reply to DB
@@ -1274,6 +1276,10 @@ export default function App() {
                           {renderMessageContent(msg.content, isUser)}
                         </p>
 
+                        {msg.paymentDraft && (
+                          <PaymentDraftCard draft={msg.paymentDraft} />
+                        )}
+
                         {/* Special interactive indicator for automatic handoff */}
                         {msg.callOperator && (
                           <div className="mt-2 p-1.5 bg-amber-50 border border-amber-200 rounded text-[9.5px] text-amber-900 flex items-start space-x-1">
@@ -1786,6 +1792,10 @@ export default function App() {
                             <p className={`mt-1 leading-relaxed ${isUser ? "text-emerald-50" : "text-slate-850"}`}>
                               {renderMessageContent(msg.content, isUser)}
                             </p>
+
+                            {msg.paymentDraft && (
+                              <PaymentDraftCard draft={msg.paymentDraft} />
+                            )}
 
                             {/* Automation metadata */}
                             {msg.callOperator && (

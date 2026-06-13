@@ -1,3 +1,15 @@
+export interface PaymentDraft {
+  recipientName: string;
+  recipientUnp: string;
+  recipientIban: string;
+  recipientBank: string;
+  amount: string;
+  currency: string;
+  purpose: string;
+  link: string;
+  paymentType: string;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system' | 'operator';
@@ -10,6 +22,7 @@ export interface Message {
     currentPageUrl: string;
     chatSessionId: string;
   };
+  paymentDraft?: PaymentDraft;
 }
 
 export interface Offer {

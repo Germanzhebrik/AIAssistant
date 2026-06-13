@@ -106,6 +106,7 @@ interface Message {
   timestamp: string;
   callOperator?: boolean;
   operatorSummary?: any;
+  paymentDraft?: any;
 }
 
 interface ChatSession {
@@ -238,7 +239,8 @@ app.post("/api/sessions/:id/messages", (req, res) => {
       content: message.content,
       timestamp: new Date().toLocaleString("ru-RU"),
       callOperator: message.callOperator || false,
-      operatorSummary: message.operatorSummary || null
+      operatorSummary: message.operatorSummary || null,
+      paymentDraft: message.paymentDraft || null
     });
     saveSessions(mockSessions);
     res.json({ success: true, session });
@@ -262,22 +264,133 @@ app.post("/api/sessions/new", (req, res) => {
   res.json(newSession);
 });
 
+// Helper to build deep links with prefilled GET parameters pointing to official SberBusiness payments
+function getPaymentUrl(type: string, params: { recipientName: string, recipientUnp: string, recipientIban: string, recipientBank: string, amount: string, purpose: string }): string {
+  const baseUrls: Record<string, string> = {
+    "PAYDOCBY": "https://sbbol.sber-bank.by/document/PAYDOCBY/create",
+    "INSTANT": "https://sbbol.sber-bank.by/document/INSTANT_PAYMENT_ORDER/create",
+    "ERIP": "https://sbbol.sber-bank.by/erip-payments/PAYDOCBYERIP",
+    "PAYDOCCUR": "https://sbbol.sber-bank.by/document/PAYDOCCUR/create",
+    "CORPCARD": "https://sbbol.sber-bank.by/document/PAY_DOC_CORPO_CARD/create",
+    "WAGES": "https://sbbol.sber-bank.by/document/PAYMENT_OF_WAGES/create",
+    "INDIVIDUAL": "https://sbbol.sber-bank.by/document/PAYDOCSAL_WITHOUT_CONTRACT/create"
+  };
+
+  const baseUrl = baseUrls[type] || baseUrls["PAYDOCBY"];
+  const url = new URL(baseUrl);
+  url.searchParams.set("recipientName", params.recipientName || "");
+  url.searchParams.set("recipientUnp", params.recipientUnp || "");
+  url.searchParams.set("recipientIban", params.recipientIban || "");
+  url.searchParams.set("recipientBank", params.recipientBank || "");
+  url.searchParams.set("amount", params.amount || "");
+  url.searchParams.set("currency", "BYN");
+  url.searchParams.set("purpose", params.purpose || "");
+
+  return url.toString();
+}
+
 // Helper for High-Fidelity Mock Response Generation
-function generateMockResponse(role: string, prompt: string, isOperatorRequest: boolean, currentUrl: string, detectedTerms: string[]): { content: string; callOperator: boolean; operatorSummary: any; detectedTerms: string[] } {
+function generateMockResponse(role: string, prompt: string, isOperatorRequest: boolean, currentUrl: string, detectedTerms: string[]): { content: string; callOperator: boolean; operatorSummary: any; detectedTerms: string[]; paymentDraft?: any } {
   const kb = getKnowledgeBase();
   let reply = "";
   let matchedFaq = null;
   let matchedProduct = null;
+  let paymentDraft: any = null;
 
   const pLower = (prompt || "").toLowerCase();
   const activeRole = role === "director" ? "director" : "accountant";
   const activeCounterparties = mockCounterpartiesByRole[activeRole];
 
   // Determine user intent semantically without simple word triggers
-  const isPaymentOrTransfer = /платеж|платёж|оплат|перевод|сделать перевод/gi.test(pLower);
+  const isPaymentOrTransfer = /платеж|платёж|оплат|перевод|сделать перевод|оплати|заплати|закинь|переведи/gi.test(pLower);
+  const isHowToQuestion = /как|инструкция|правило|почему|зачем|справка/gi.test(pLower);
   const isListRequest = (/список/gi.test(pLower) || /реестр/gi.test(pLower) || /покажи.*контр/gi.test(pLower) || /выведи/gi.test(pLower) || /всех/gi.test(pLower)) && !isPaymentOrTransfer;
 
-  if (isListRequest) {
+  const wantsPaymentDraft = isPaymentOrTransfer && !isHowToQuestion;
+
+  if (wantsPaymentDraft) {
+    // Find matched counterparty
+    let matchedC = activeCounterparties.find(c =>
+      pLower.includes(c.name.toLowerCase().replace(/['"«»]/g, "")) ||
+      pLower.includes(c.unp) ||
+      (c.iban && pLower.includes(c.iban.toLowerCase())) ||
+      (c.name.toLowerCase().includes("белаз") && pLower.includes("белаз")) ||
+      (c.name.toLowerCase().includes("минскоптреклама") && pLower.includes("реклам")) ||
+      (c.name.toLowerCase().includes("иванов") && pLower.includes("иванов")) ||
+      (c.name.toLowerCase().includes("поставкаресурс") && pLower.includes("ресурс")) ||
+      (c.name.toLowerCase().includes("бизнессервисрб") && pLower.includes("сервис")) ||
+      (c.name.toLowerCase().includes("гаранттранс") && pLower.includes("гарант")) ||
+      (c.name.toLowerCase().includes("торгспецбел") && pLower.includes("торг"))
+    );
+
+    // Fallback defaults
+    const defaults = activeCounterparties[0];
+    const recName = matchedC ? matchedC.name : defaults.name;
+    const recUnp = matchedC ? matchedC.unp : defaults.unp;
+    const recIban = matchedC ? matchedC.iban : defaults.iban;
+    const recBank = matchedC ? matchedC.bankName : defaults.bankName;
+
+    // Extract amount
+    let amountStr = "500.00";
+    const foundNumbers = pLower.match(/\b\d+(?:[\s.,]\d+)*\b/g);
+    if (foundNumbers) {
+      const possibleAmount = foundNumbers.find(num => {
+        const cleanNum = num.replace(/\s/g, "");
+        return cleanNum.length < 9 && cleanNum.length > 1; // Amount is usually shorter than IBAN or UNP
+      });
+      if (possibleAmount) {
+        amountStr = possibleAmount.trim();
+      }
+    }
+
+    // Extract purpose
+    let extractedPurpose = "Оплата по договору";
+    const purposeIndicators = [" за ", " по ", " на ", " назначение "];
+    for (const indicator of purposeIndicators) {
+      const idx = pLower.indexOf(indicator);
+      if (idx !== -1) {
+        const part = prompt.substring(idx + indicator.length).trim();
+        if (part.length > 4) {
+          extractedPurpose = part;
+          break;
+        }
+      }
+    }
+
+    if (matchedC && extractedPurpose === "Оплата по договору") {
+      extractedPurpose = `Оплата по обязательствам согласно договору ${matchedC.contract.split("№")[1] || "№1"}`;
+    }
+
+    const payType = "PAYDOCBY";
+    const generatedLink = getPaymentUrl(payType, {
+      recipientName: recName,
+      recipientUnp: recUnp,
+      recipientIban: recIban,
+      recipientBank: recBank,
+      amount: amountStr,
+      purpose: extractedPurpose
+    });
+
+    paymentDraft = {
+      recipientName: recName,
+      recipientUnp: recUnp,
+      recipientIban: recIban,
+      recipientBank: recBank,
+      amount: amountStr,
+      currency: "BYN",
+      purpose: extractedPurpose,
+      link: generatedLink,
+      paymentType: payType
+    };
+
+    reply = `Отличный запрос! Я распознал ваше намерение подготовить платеж и автоматически сформировал готовый черновик платежного поручения в СберБизнесе:\n\n` +
+            `• **Получатель:** ${recName}\n` +
+            `• **УНП:** ${recUnp}\n` +
+            `• **IBAN счёт:** \`${recIban}\` (${recBank})\n` +
+            `• **Сумма:** **${amountStr} BYN**\n` +
+            `• **Назначение:** _${extractedPurpose}_\n\n` +
+            `Нажмите кнопку **«Сформировать и отправить во внешний СберБизнес»** ниже для мгновенного перехода к созданию реального платежа на официальном портале Сбер Банка с заполненными реквизитами!`;
+  } else if (isListRequest) {
     let listFormatted = `**Список верифицированных контрагентов для ${role === 'director' ? 'ООО "ТехноПром"' : 'ИП Смирнова О.Н.'}:**\n\n`;
     activeCounterparties.forEach((c, idx) => {
       listFormatted += `${idx + 1}. **${c.name}** (УНП ${c.unp})\n`;
@@ -290,7 +403,7 @@ function generateMockResponse(role: string, prompt: string, isOperatorRequest: b
     reply = listFormatted;
   } else {
     // Check for specific counterparty mention
-    const foundSpecific = !isPaymentOrTransfer ? activeCounterparties.find(c =>
+    const foundSpecific = activeCounterparties.find(c =>
       pLower.includes(c.name.toLowerCase().replace(/['"«»]/g, "")) ||
       pLower.includes(c.unp) ||
       (c.iban && pLower.includes(c.iban.toLowerCase())) ||
@@ -301,7 +414,7 @@ function generateMockResponse(role: string, prompt: string, isOperatorRequest: b
       (c.name.toLowerCase().includes("бизнессервисрб") && pLower.includes("сервис")) ||
       (c.name.toLowerCase().includes("гаранттранс") && pLower.includes("гарант")) ||
       (c.name.toLowerCase().includes("торгспецбел") && pLower.includes("торг"))
-    ) : undefined;
+    );
 
     if (foundSpecific) {
       reply = `**Карточка контрагента: ${foundSpecific.name}**\n\n` +
@@ -382,7 +495,8 @@ function generateMockResponse(role: string, prompt: string, isOperatorRequest: b
       currentPageUrl: currentUrl || "https://www.sber-bank.by/corporate",
       chatSessionId: "session-fallback-id"
     } : null,
-    detectedTerms
+    detectedTerms,
+    paymentDraft
   };
 }
 
@@ -446,13 +560,13 @@ ${JSON.stringify(mockCounterpartiesByRole[role === "director" ? "director" : "ac
 2. Обязательно выделяй жирным шрифтом финансовые термины из следующего глоссария (чтобы фронтенд мог подсветить их и сделать подсказки): овердрафт, лизинг, факторинг, валютный контроль, нсбу, кэшпулинг. Пиши их точно в таком регистре или склонениях (вместо рсбу теперь используется нсбу!).
 3. Персонализация: Учитывай роль. Директору предлагай кредиты, вклады, лизинг, ликвидность в BYN. Бухгалтеру — отчеты, налоги, автоматизация счетов, НСБУ, платежные поручения, регистрацию договоров в Нацбанке РБ.
 4. ССЫЛКИ НА СТРАНИЦЫ БАНКА: Если в базе знаний приведены официальные ссылки (official_link или link) для упомянутого продукта или вопроса, ты ОБЯЗАН внедрить их в ответ в markdown формате: [Название ссылки](URL_ссылки). Не выдумывай ссылки, которых нет в базе знаний. Всегда ориентируйся на домен sber-bank.by.
-5. ТОЛЬКО ЕСЛИ пользователь прямо и настойчиво просит переключить на человека (или просит позвать оператора, или крайне раздражен текущим качеством авто-ответов и явно отказывается беседовать с роботом), ТЫ ОБЯЗАН завершить свой ответ специальной строкой в самом конце на отдельной строке:
-[CALL_OPERATOR_TRIGGER]
-Во всех остальных случаях, если пользователь задает обычные или справочные вопросы о СберБизнесе, поддержке, НСБУ и т.д., НИКОГДА не выводи эту метку! Отвечай самостоятельно с опорой на базу знаний.
+5. ТОЛЬКО ЕСЛИ пользователь прямо и настойчиво просит переключить на человека (или просит позвать оператора, или крайне раздражен текущим качеством авто-ответов и явно отказывается беседовать с роботом), выведи в JSON поле 'callOperator' в значении true.
 6. РАЗГРАНИЧЕНИЕ ЗАПРОСОВ ПО КОНТРАГЕНТАМ:
    - Если пользователь просит вывести список или реестр контрагентов (например, "Выведи мне список контрагентов", "Покажи список партнеров", "реестр контрагентов", "список контрагентов"), ты должен вывести полный структурированный список верифицированных контрагентов активного аккаунта со всеми реквизитами.
    - Если пользователь спрашивает, КАК сделать платеж, платить или переводить деньги контрагенту/партнеру (например, "Как сделать платеж контрагенту", "как перевести деньги контрагенту", "оплата партнеру"), ты НЕ должен выводить список контрагентов! Вместо этого ответь общей или детальной инструкцией по созданию платежного поручения в СберБизнесе из базы знаний (с упоминанием кнопки «Создать документ» и выбором нужного типа операции типа Платежное поручение BYN внутри РБ, мгновенный платеж и т.д.).
    - Принимай это решение интеллектуально, оценивая значение и грамматическую конструкцию фразы пользователя. Никаких простых триггеров на слово "контрагент" быть не должно!
+7. Оформление черновика платежа (paymentDraft):
+   Если пользователь просит подготовить платеж, сделать перевод, оформить платежку или перечислить деньги конкретному контрагенту (с указанием контрагента, суммы или назначения платежа), заполни объект paymentDraft в JSON. Извлеки все данные из списка верифицированных контрагентов. Например, если пользователь говорит 'Оплати Белазу 1500 рублей', ты должен сопоставить 'Белаз' с ОАО 'БелАЗ' из списка, подставить его UNP, IBAN и банк, а в поле amount записать '1500'. Если в запросе указана за задолженность, услуги или запчасти, заполни purpose. Если пользователь просто интересуется 'как сделать платеж', paymentDraft должен быть строго null.
 
 История переписки для соблюдения контекста диалога:
 ${JSON.stringify(history || [])}
@@ -465,17 +579,73 @@ ${JSON.stringify(history || [])}
       config: {
         systemInstruction,
         temperature: 0.3,
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            content: {
+              type: "STRING",
+              description: "Основной текстовый ответ ассистента со всей справочной информацией и подсветкой финансовых терминов. Применяй Markdown."
+            },
+            callOperator: {
+              type: "BOOLEAN",
+              description: "Установи в true, только если пользователь просит переключить его на живого оператора."
+            },
+            paymentDraft: {
+              type: "OBJECT",
+              description: "Заполняется только у пользователя есть ПРЯМОЙ запрос на осуществление платежа, перевод денег или создание платежного поручения контрагенту (с указанием суммы или конкретного партнера). Если пользователь задает справочный вопрос 'как сделать платеж', это поле должно быть null.",
+              properties: {
+                recipientName: { type: "STRING", description: "Наименование получателя" },
+                recipientUnp: { type: "STRING", description: "УНП получателя" },
+                recipientIban: { type: "STRING", description: "IBAN получателя" },
+                recipientBank: { type: "STRING", description: "Банк получателя" },
+                amount: { type: "STRING", description: "Сумма платежа числом" },
+                currency: { type: "STRING", description: "Валюта платежа (BYN)" },
+                purpose: { type: "STRING", description: "Назначение платежа" },
+                paymentType: { type: "STRING", description: "Тип документа. Обычно PAYDOCBY" }
+              },
+              required: ["recipientName", "recipientUnp", "recipientIban", "recipientBank", "amount", "currency", "purpose", "paymentType"]
+            }
+          },
+          required: ["content", "callOperator"]
+        }
       }
     });
 
     let resultText = response.text || "";
     let callOperator = false;
     let operatorSummary = null;
+    let paymentDraft = null;
 
-    if (resultText.includes("[CALL_OPERATOR_TRIGGER]") || isOperatorRequest) {
+    try {
+      const parsedJson = JSON.parse(resultText.trim());
+      resultText = parsedJson.content || "";
+      callOperator = parsedJson.callOperator || false;
+      if (parsedJson.paymentDraft) {
+        const pd = parsedJson.paymentDraft;
+        const generatedLink = getPaymentUrl(pd.paymentType || "PAYDOCBY", {
+          recipientName: pd.recipientName || "",
+          recipientUnp: pd.recipientUnp || "",
+          recipientIban: pd.recipientIban || "",
+          recipientBank: pd.recipientBank || "",
+          amount: pd.amount || "",
+          purpose: pd.purpose || ""
+        });
+        paymentDraft = {
+          ...pd,
+          link: generatedLink
+        };
+      }
+    } catch (parseEx) {
+      console.warn("[Gemini API] Error parsing structured JSON, treating raw text:", parseEx);
+      if (resultText.includes("[CALL_OPERATOR_TRIGGER]") || isOperatorRequest) {
+        callOperator = true;
+        resultText = resultText.replace("[CALL_OPERATOR_TRIGGER]", "").trim();
+      }
+    }
+
+    if (callOperator || isOperatorRequest) {
       callOperator = true;
-      resultText = resultText.replace("[CALL_OPERATOR_TRIGGER]", "").trim();
-
       // Implement Operator Summarization process using Gemini!
       try {
         const summaryPrompt = `Сделай краткое структурированное саммари диалога для системы CRM оператора поддержки в Республике Беларусь.
@@ -515,7 +685,8 @@ ${JSON.stringify(history || [])}
       content: resultText,
       callOperator,
       operatorSummary,
-      detectedTerms
+      detectedTerms,
+      paymentDraft
     });
 
   } catch (err: any) {
