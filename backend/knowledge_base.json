@@ -82,6 +82,260 @@
       "keywords": ["платежный документ", "создать документ", "оформить документ", "новый документ", "платежка", "платежное поручение", "мгновенный платеж", "ерип", "перевод на карту", "выплаты физлицам", "выплаты физическому лицу", "заявка на услугу"],
       "answer": "Для оформления платежного документа в СберБизнесе вам необходимо нажать кнопку **«Создать документ»** на главной странице. Откроется всплывающее окно **«Новый документ»**, где вы сможете выбрать нужный тип операции:\n\n1. **Платежное поручение (BYN) внутри РБ** — для обычных рублевых переводов контрагентам. [[Оформить]](https://sbbol.sber-bank.by/document/PAYDOCBY/create)\n2. **Мгновенный платеж (BYN)** — для оперативных зачислений круглосуточно. [[Оформить]](https://sbbol.sber-bank.by/document/INSTANT_PAYMENT_ORDER/create)\n3. **Платеж в ЕРИП (административные процедуры)** — платежи за гос. услуги, пошлины и т.д. [[Оформить]](https://sbbol.sber-bank.by/erip-payments/PAYDOCBYERIP)\n4. **Платежное поручение (инвалюта) внутри РБ** — для валютных расчетов внутри страны. [[Оформить]](https://sbbol.sber-bank.by/document/PAYDOCCUR/create)\n5. **Платежное поручение за пределы РБ (в т.ч. RUB)** — для совершения трансграничных валютных переводов. [[Оформить]](https://sbbol.sber-bank.by/document/PAYDOCCUR/create)\n6. **Перевод на корпоративную карту** — пополнение ваших корпоративных и бизнес-карт. [[Оформить]](https://sbbol.sber-bank.by/document/PAY_DOC_CORPO_CARD/create)\n7. **Выплаты физическим лицам (по договору с банком)** — массовое зачисление в рамках зарплатного проекта. [[Оформить]](https://sbbol.sber-bank.by/document/PAYMENT_OF_WAGES/create)\n8. **Выплаты физическому лицу (без договора с банком)** — разовые выплаты (подрядчики, дивиденды, аренда). [[Оформить]](https://sbbol.sber-bank.by/document/PAYDOCSAL_WITHOUT_CONTRACT/create)\n9. **Заявка на предоставление продукта (услуги)** — оформление заявок на банковские услуги и новые продукты. [[Оформить]](https://sbbol.sber-bank.by/document/APPLGETPRODUCT/create)\n\n*Уточните, какой именно тип документа вас интересует, и я помогу вам разобраться подробнее!*",
       "link": "https://sbbol.sber-bank.by"
+    },
+    {
+      "keywords": [
+        "физлицу",
+        "физическому лицу",
+        "платеж физлицу",
+        "перевод физлицу",
+        "выплаты физлицам",
+        "физическим лицам",
+        "физику",
+        "реестр на выплату",
+        "выплаты физ лицам",
+        "оформить платёж физлицу"
+      ],
+      "answer": "Для оформления платежа или перевода физическому лицу в СберБизнесе доступны следующие варианты:\n\n1. **В рамках Зарплатного проекта** (если у компании есть договор обслуживания с Сбер Банком):\n   • Перейдите в **Раздел: Зарплата** -> **Категория: Зарплатный проект**.\n   • Для выплат сотрудникам выберите [Переводы на счета физических лиц](https://sbbol.sber-bank.by/document/PAYMENT_OF_WAGES) или загрузите [Списки физических лиц на выплату](https://sbbol.sber-bank.by/document/CASHLIST).\n   • Если зарплатный проект еще не подключен, оформите заявку онлайн: [Подключение зарплатного проекта](https://sbbol.sber-bank.by/document/APPLSALARYPROJECT).\n\n2. **Разовые выплаты (без договора на зарплатный проект)** — например, расчеты с самозанятыми, аренда, дивиденды, подряды:\n   • Нажмите кнопку **«Создать документ»** -> выберите **«Выплаты физическому лицу (без договора с банком)»**. Ссылка на форму: [Создать выплату физлицу](https://sbbol.sber-bank.by/document/PAYDOCSAL_WITHOUT_CONTRACT/create).\n\n3. **Перевод сотруднику на корпоративную или бизнес-карту**:\n   • Оформите [Переводы на корпоративные карты](https://sbbol.sber-bank.by/document/PAY_DOC_CORPO_CARD).",
+      "link": "https://sbbol.sber-bank.by/document/PAYMENT_OF_WAGES"
+    },
+    {
+      "keywords": [
+        "эквайринг",
+        "подключить эквайринг",
+        "терминал",
+        "эквайринга",
+        "терминалы",
+        "пункты обслуживания",
+        "изменения по эквайрингу"
+      ],
+      "answer": "Подключение и настройка эквайринга в СберБизнесе выполняются дистанционно:\n\n1. **Для подключения новой точки обслуживания и терминалов**:\n   • Перейдите в **Раздел: Продукты и услуги** -> **Категория: Эквайринг**.\n   • Заполните заявление онлайн по ссылке: [Регистрация пункта обслуживания и терминалов](https://sbbol.sber-bank.by/document/APPLACQUIRING).\n\n2. **Для внесения изменений по действующему эквайрингу** (смена тарифа, счета зачисления, адреса или замена оборудования):\n   • Оформите заявление по ссылке: [Внесение изменений по эквайрингу](https://sbbol.sber-bank.by/document/APPLCHANGEACQUIRING).\n\n3. **Для просмотра логов работы и подключенного оборудования**:\n   • Перейдите в раздел [Пункты обслуживания и терминалы](https://sbbol.sber-bank.by/acquiring-service-points).",
+      "link": "https://sbbol.sber-bank.by/document/APPLACQUIRING"
+    },
+    {
+      "keywords": [
+        "смс",
+        "подписание смс",
+        "сервис подписания смс",
+        "sms подпись",
+        "sms-подпись",
+        "сертификат",
+        "продление сертификата",
+        "ключ",
+        "смена ключей",
+        "sms"
+      ],
+      "answer": "Подключить **Сервис подписания по СМС** (чтобы подтверждать платежные документы кодами из СМС вместо использования USB-токенов/аппаратной ЭЦП) можно в СберБизнесе следующим образом:\n\n1. Перейдите в **Раздел: Прочее** -> **Категория: Прочие сервисы**.\n2. Выберите форму [Запрос на продление сертификата (Смена ключей)](https://sbbol.sber-bank.by/document/CLIENTKEYEXCHANGE).\n3. В параметрах запроса нового сертификата укажите мобильный номер телефона для доставки одноразовых СМС-паролей в качестве основного способа авторизации и подписания.\n4. Сформируйте заявление, подпишите текущим ключом и отправьте в банк. После проверки СМС-подписание будет активировано.",
+      "link": "https://sbbol.sber-bank.by/document/CLIENTKEYEXCHANGE"
+    },
+    {
+      "keywords": [
+        "выписка",
+        "справка",
+        "сформировать выписку",
+        "запрос справки",
+        "выписку и справку",
+        "выписки",
+        "справки",
+        "выписка по счету",
+        "налоговая справка",
+        "справку об отсутствии обязательств",
+        "справка перед фондом",
+        "выписку"
+      ],
+      "answer": "В СберБизнесе операции формирования выписок и получения официальных справок разделены на три удобные категории:\n\n1. **Получение выписки по счетам**:\n   • Перейдите в **Раздел: Выписка** -> [Выписка по счетам](https://sbbol.sber-bank.by/statement). Там вы можете скачать выписку за любой период в форматах PDF, 1C или Excel по вашим рублевым и валютным счетам.\n\n2. **Запрос официальной банковской справки**:\n   • Перейдите в **Раздел: Продукты и услуги** -> **Категория: Ведение счетов** -> [Запрос справки](https://sbbol.sber-bank.by/document/CERTIFICATEQUERY). Здесь можно заказать справку об оборотах, остатках, открытых счетах или для аудиторской проверки.\n   • Для детальных запросов информации по операциям перейдите в **Раздел: Прочее** -> [Запросы информации по счетам / операциям](https://sbbol.sber-bank.by/document/STATEMENTQUERY).\n\n3. **Налоговая и ФСЗН-отчетность в рамках зарплатного проекта**:\n   • Перейдите в **Раздел: Зарплата** -> **Категория: Зарплатный проект**.\n   • Для ИМНС доступна [Справка об исполнении налоговых обязательств](https://sbbol.sber-bank.by/document/INFORMATION_ON_OBLIGATION).\n   • Для пенсионного фонда (ФСЗН) доступна [Справка об отсутствии обязательств перед Фондом](https://sbbol.sber-bank.by/document/INFORMATION_ON_PENSION).",
+      "link": "https://sbbol.sber-bank.by/statement"
     }
-  ]
+  ],
+  "sberbusiness_navigation": {
+    "sections": [
+      {
+        "id": "sec-0",
+        "name": "Раздел: Деньги и события (Главная страница)",
+        "url": "https://sbbol.sber-bank.by/",
+        "items": [
+          {"name": "Кнопка «Создать документ»", "url": "https://sbbol.sber-bank.by/"},
+          {"name": "Документы на подписании", "url": "https://sbbol.sber-bank.by/document/SENDDOCTOSIGN"},
+          {"name": "Кредиты", "url": "https://sbbol.sber-bank.by/credits"},
+          {"name": "Корпоративные карты", "url": "https://sbbol.sber-bank.by/corporate-cards"},
+          {"name": "Курсы валют", "url": "https://sbbol.sber-bank.by/exchange-rates"}
+        ]
+      },
+      {
+        "id": "sec-1",
+        "name": "Раздел: Расчеты",
+        "categories": [
+          {
+            "name": "Платежи и переводы",
+            "items": [
+              {"name": "Переводы в BYN", "url": "https://sbbol.sber-bank.by/document/PAYMENT_ORDER"},
+              {"name": "Платежные требования в BYN", "url": "https://sbbol.sber-bank.by/document/PAYORDERBY"},
+              {"name": "Акцепт платежных требований", "url": "https://sbbol.sber-bank.by/document/PRIORACCEPT"},
+              {"name": "Бронирование денежных средств", "url": "https://sbbol.sber-bank.by/document/APPLRESERV"},
+              {"name": "Переводы в иностранной валюте", "url": "https://sbbol.sber-bank.by/document/PAYDOCCUR"},
+              {"name": "Покупка / продажа (конверсия) инвалюты", "url": "https://sbbol.sber-bank.by/document/CURRBUY"}
+            ]
+          },
+          {
+            "name": "Кассовое обслуживание",
+            "items": [
+              {"name": "Получение наличных BYN", "url": "https://sbbol.sber-bank.by/document/APPLCASHBY"},
+              {"name": "Заказ наличных денег", "url": "https://sbbol.sber-bank.by/document/APPLMONEY"},
+              {"name": "Получение наличной иностранной валюты", "url": "https://sbbol.sber-bank.by/document/APPLCURRCASHGET"},
+              {"name": "Взнос наличной иностранной валюты", "url": "https://sbbol.sber-bank.by/document/APPLCURRCASHPLACE"}
+            ]
+          },
+          {
+            "name": "Валютный контроль и ВЭД",
+            "items": [
+              {"name": "Документы для валютного контроля", "url": "https://sbbol.sber-bank.by/document/FTRADEDEALDOCS"},
+              {"name": "Регистрация (перерегистрация) сделки", "url": "https://sbbol.sber-bank.by/document/APPLREGDEALS"},
+              {"name": "Сведения о поступивших денежных средствах по валютной операции", "url": "https://sbbol.sber-bank.by/document/INCOMEREPORT"}
+            ]
+          },
+          {
+            "name": "АИС ИДО",
+            "items": [
+              {"name": "Заявления на оплату платежного требования на взыскание денежных средств в бесспорном порядке", "url": "https://sbbol.sber-bank.by/document/APPLPAYMENTPAYORDERCLAIM"},
+              {"name": "Ведомость неисполненных денежных обязательств в АИС ИДО", "url": "https://sbbol.sber-bank.by/document/AISIDOSTATEMENT"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-2",
+        "name": "Раздел: Выписка",
+        "url": "https://sbbol.sber-bank.by/statement"
+      },
+      {
+        "id": "sec-3",
+        "name": "Раздел: Зарплата",
+        "categories": [
+          {
+            "name": "Зарплатный проект",
+            "items": [
+              {"name": "Переводы на счета физических лиц", "url": "https://sbbol.sber-bank.by/document/PAYMENT_OF_WAGES"},
+              {"name": "Списки физических лиц на выплату", "url": "https://sbbol.sber-bank.by/document/CASHLIST"},
+              {"name": "Подключение зарплатного проекта", "url": "https://sbbol.sber-bank.by/document/APPLSALARYPROJECT"},
+              {"name": "Справки об исполнении налоговых обязательств", "url": "https://sbbol.sber-bank.by/document/INFORMATION_ON_OBLIGATION"},
+              {"name": "Справки об отсутствии обязательств перед Фондом", "url": "https://sbbol.sber-bank.by/document/INFORMATION_ON_PENSION"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-4",
+        "name": "Раздел: Продукты и услуги",
+        "categories": [
+          {
+            "name": "Корпоративные карты",
+            "items": [
+              {"name": "Переводы на корпоративные карты", "url": "https://sbbol.sber-bank.by/document/PAY_DOC_CORPO_CARD"},
+              {"name": "Получение корпоративной карты / бизнес-карты", "url": "https://sbbol.sber-bank.by/document/APPLGETCARD"},
+              {"name": "Доверенность на получение / возврат корпоративных карт", "url": "https://sbbol.sber-bank.by/document/CORPOCARDPROXYRT"},
+              {"name": "Управление картами", "url": "https://sbbol.sber-bank.by/document/APPLCARDCONTROL"}
+            ]
+          },
+          {
+            "name": "Депозиты",
+            "items": [
+              {"name": "Открытие депозита", "url": "https://sbbol.sber-bank.by/document/APPLOPENDEPOSIT"},
+              {"name": "Пополнение / возврат депозита (процентов)", "url": "https://sbbol.sber-bank.by/document/APPLDEPOSIT"},
+              {"name": "Депозитный калькулятор", "url": "https://sbbol.sber-bank.by/depositCalculator"}
+            ]
+          },
+          {
+            "name": "Ведение счетов",
+            "items": [
+              {"name": "Смена (подключение) пакета услуг", "url": "https://sbbol.sber-bank.by/document/CHANGEOPPACKNOTICE"},
+              {"name": "Открытие счета", "url": "https://sbbol.sber-bank.by/document/APPLOPENACC"},
+              {"name": "Запрос справки", "url": "https://sbbol.sber-bank.by/document/CERTIFICATEQUERY"}
+            ]
+          },
+          {
+            "name": "Прочие продукты и услуги",
+            "items": [
+              {"name": "Заявка на предоставление продукта (услуги)", "url": "https://sbbol.sber-bank.by/document/APPLGETPRODUCT"},
+              {"name": "Доступ к услуге «Самоинкассация»", "url": "https://sbbol.sber-bank.by/document/APPLGETSELFINKASS"}
+            ]
+          },
+          {
+            "name": "Кредитование",
+            "items": [
+              {"name": "Кредиты", "url": "https://sbbol.sber-bank.by/credits"}
+            ]
+          },
+          {
+            "name": "Эквайринг",
+            "items": [
+              {"name": "Регистрация пункта обслуживания и терминалов", "url": "https://sbbol.sber-bank.by/document/APPLACQUIRING"},
+              {"name": "Внесение изменений по эквайрингу", "url": "https://sbbol.sber-bank.by/document/APPLCHANGEACQUIRING"},
+              {"name": "Пункты обслуживания и терминалы", "url": "https://sbbol.sber-bank.by/acquiring-service-points"}
+            ]
+          },
+          {
+            "name": "Торговая площадка",
+            "items": [
+              {"name": "Вход на торговую площадку (веб-версия)", "url": "https://terminal-east-prod.ntprog.com/"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sec-5",
+        "name": "Раздел: Сервисы",
+        "categories": [
+          {
+            "name": "Платформа «inSales»",
+            "description": "Создайте интернет-магазин, синхронизируйте товары и заказы на всех маркетплейсах, ведите диалоги с клиентами в одном окне",
+            "items": [
+              {"name": "Вход на платформу inSales", "url": "https://insales.by/page/registration"}
+            ]
+          },
+          {
+            "name": "Сервис BitTax",
+            "description": "Онлайн-сервис по автоматическому бухгалтерскому и налоговому учету",
+            "items": []
+          }
+        ]
+      },
+      {
+        "id": "sec-6",
+        "name": "Раздел: Прочее",
+        "url": "https://sbbol.sber-bank.by/other",
+        "categories": [
+          {
+            "name": "Финансовая информация",
+            "items": [
+              {"name": "Запросы информации по счетам / операциям", "url": "https://sbbol.sber-bank.by/document/STATEMENTQUERY"}
+            ]
+          },
+          {
+            "name": "Переписка",
+            "items": [
+              {"name": "Исходящие письма в банк", "url": "https://sbbol.sber-bank.by/document/FREE_CLIENT_DOC"},
+              {"name": "Входящие письма из банка", "url": "https://sbbol.sber-bank.by/document/FREE_BANK_DOC"}
+            ]
+          },
+          {
+            "name": "Справочники",
+            "items": [
+              {"name": "Контрагенты", "url": "https://sbbol.sber-bank.by/other"},
+              {"name": "Сотрудники", "url": "https://sbbol.sber-bank.by/other"},
+              {"name": "Действующие договоры", "url": "https://sbbol.sber-bank.by/customer-profile"}
+            ]
+          },
+          {
+            "name": "Прочие сервисы",
+            "items": [
+              {"name": "Отзыв документа", "url": "https://sbbol.sber-bank.by/document/APPLREVCHANGEDOC"},
+              {"name": "Запрос на продление сертификата", "url": "https://sbbol.sber-bank.by/document/CLIENTKEYEXCHANGE"},
+              {"name": "Проверка контрагента", "url": "https://sbbol.sber-bank.by/document/CONTRAGENTVERIFICATION"},
+              {"name": "Бизнес-аналитика", "url": "https://sbbol.sber-bank.by/analytics"}
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }
