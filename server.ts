@@ -426,8 +426,8 @@ function generateMockResponse(role: string, prompt: string, isOperatorRequest: b
   const activeCounterparties = mockCounterpartiesByRole[activeRole];
 
   // Determine user intent semantically without simple word triggers
-  const isPaymentOrTransfer = /платеж|платёж|оплат|перевод|сделать перевод|оплати|заплати|закинь|переведи/gi.test(pLower);
-  const isHowToQuestion = /как|инструкция|правило|почему|зачем|справка/gi.test(pLower);
+  const isPaymentOrTransfer = /платеж|платёж|оплат|перевод|сделать перевод|оплати|заплати|закинь|переведи|выплати|перечисли|погаси|оформи/gi.test(pLower);
+  const isHowToQuestion = /как|инструкция|правило|почему|зачем|справка|выписка|выписку/gi.test(pLower);
   const isListRequest = (/список/gi.test(pLower) || /реестр/gi.test(pLower) || /покажи.*контр/gi.test(pLower) || /выведи/gi.test(pLower) || /всех/gi.test(pLower)) && !isPaymentOrTransfer;
 
   const isCreateReminder = /напоминай|создай напоминание|добавь напоминание|напомни|запланируй напоминание/gi.test(pLower);
@@ -833,9 +833,10 @@ ${JSON.stringify(history || [])}
 
         // 1. Check for explicit transactional/payment action verbs
         // e.g. "оплати Белазу", "переведи Смирновой", but not informational "как перевести", "почему", "выписка"
-        const hasPaymentVerbs = /\b(оплати|заплати|переведи|перечисли|закинь|выплати|погаси|перевод|оплата)\b/i.test(pLowerVal);
-        const isHowOrInfoQuery = /\b(как|инструкция|справка|почему|правила|выписка)\b/i.test(pLowerVal);
-        const hasDirectPaymentIntent = hasPaymentVerbs && !isHowOrInfoQuery;
+        const hasPaymentVerbs = /(?:^|[^а-яё0-9_])(оплати|оплат|заплати|заплат|переведи|перевед|перечисл|закинь|выплати|выплат|погаси|погас|перевод|оплата|оформи|оформ|произведи|подготовь|сделай платеж|сделай перевод|платёж|платеж)(?![а-яё0-9_])/i.test(pLowerVal);
+        const isHowOrInfoQuery = /(?:^|[^а-яё0-9_])(как|инструкц|справк|почему|правил|выписк|зачем|руководств)(?![а-яё0-9_])/i.test(pLowerVal);
+        const isReminderPrompt = /(?:^|[^а-яё0-9_])(напомин|календар|напомни|добавь напом|запланируй напом)(?![а-яё0-9_])/i.test(pLowerVal);
+        const hasDirectPaymentIntent = hasPaymentVerbs && !isHowOrInfoQuery && !isReminderPrompt;
 
         // 2. Reject any drafts filled with generic placeholders, "null" or "undefined" strings/values
         const hasNullOrUndefinedFields =
