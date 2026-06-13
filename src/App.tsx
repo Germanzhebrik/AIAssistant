@@ -46,8 +46,8 @@ import {
   ChevronDown,
   ArrowLeftRight
 } from "lucide-react";
-import { bankProfiles, glossaryTerms } from "./data";
-import { Message, ChatSession, Profile, GlossaryTerm } from "./types";
+import { bankProfiles, glossaryTerms, mockCounterpartiesByRole } from "./data";
+import { Message, ChatSession, Profile, GlossaryTerm, Counterparty } from "./types";
 
 export default function App() {
   // Profiles & Roles State
@@ -57,6 +57,9 @@ export default function App() {
 
   // Custom Role restrictions popup state
   const [permissionDeniedText, setPermissionDeniedText] = useState<string | null>(null);
+
+  // Counterparties modal state
+  const [isCounterpartiesOpen, setIsCounterpartiesOpen] = useState(false);
 
   // Chat States
   const [inputValue, setInputValue] = useState("");
@@ -167,11 +170,11 @@ export default function App() {
   };
 
   // Automated financial terms highlighter & Markdown parser in response texts
-  const renderMessageContent = (text: string) => {
+  const renderMessageContent = (text: string, isUserMessage: boolean = false) => {
     if (!text) return null;
 
-    // Combined regex to identify links ([text](url) or [[text]](url)), bold text (**text**), and corporate finance glossary terms
-    const combinedRegex = /(\[?\[[^\]\n]+\]\]?\([^)\n]+\)|\*\*[^*]+\*\*|валютн[а-яё]*\s+контрол[а-яё]*|овердрафт[а-яё]{0,5}|лизинг[а-яё]{0,5}|факторинг[а-яё]{0,5}|кэшпулинг[а-яё]{0,5}|нсбу)/gi;
+    // Combined regex to identify links ([text](url) or [[text]](url)), raw URLs, bold text (**text**), and corporate finance glossary terms
+    const combinedRegex = /(\[?\[[^\]\n]+\]\]?\s*\([^)\n]+\)|https?:\/\/[^\s)\"\'<>]+|\*\*[^*]+\*\*|валютн[а-яё]*\s+контрол[а-яё]*|овердрафт[а-яё]{0,5}|лизинг[а-яё]{0,5}|факторинг[а-яё]{0,5}|кэшпулинг[а-яё]{0,5}|нсбу)/gi;
 
     const parts = text.split(combinedRegex);
     if (parts.length === 1) {
@@ -184,25 +187,55 @@ export default function App() {
           if (!part) return null;
 
           // 1. Is it a Markdown link? (e.g., [Заголовок](url) or [[Заголовок]](url))
-          const isLink = /^\[{1,2}([^\]]+)\]{1,2}\(([^)]+)\)$/.test(part);
+          const trimmedPart = part.trim();
+          const isLink = /^\[{1,2}([^\]]+)\]{1,2}\s*\(([^)]+)\)$/.test(trimmedPart);
           if (isLink) {
-            const linkMatch = part.match(/^\[{1,2}([^\]]+)\]{1,2}\(([^)]+)\)$/);
+            const linkMatch = trimmedPart.match(/^\[{1,2}([^\]]+)\]{1,2}\s*\(([^)]+)\)$/);
             if (linkMatch) {
-              const innerText = linkMatch[1];
-              const url = linkMatch[2];
+              const innerText = linkMatch[1].trim();
+              const url = linkMatch[2].trim();
               return (
                 <a
                   key={index}
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-teal-600 hover:text-teal-800 hover:underline inline-flex items-center gap-1 font-bold bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded transition-all select-all mx-1 shadow-2xs"
+                  className={
+                    isUserMessage
+                      ? "text-emerald-900 hover:text-emerald-950 inline-flex items-center gap-1 font-bold bg-emerald-50/95 hover:bg-white border border-emerald-200 px-1.5 py-0.5 rounded transition-all select-all mx-1 shadow-2xs"
+                      : "text-emerald-600 hover:text-emerald-800 hover:underline inline-flex items-center gap-1 font-bold bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded transition-all select-all mx-1 shadow-2xs"
+                  }
                 >
                   {innerText}
                   <ExternalLink className="w-3.5 h-3.5 inline-block shrink-0" />
                 </a>
               );
             }
+          }
+
+          // 1.5. Is it a raw HTTP/HTTPS link?
+          const isRawUrl = /^https?:\/\/[^\s)\"\'<>]+$/i.test(trimmedPart);
+          if (isRawUrl) {
+            const cleanUrl = trimmedPart.replace(/[.,;!?)]+$/, "");
+            const trailingPunctuation = trimmedPart.slice(cleanUrl.length);
+            return (
+              <React.Fragment key={index}>
+                <a
+                  href={cleanUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={
+                    isUserMessage
+                      ? "text-emerald-900 hover:text-emerald-950 inline-flex items-center gap-1 font-bold bg-emerald-50/95 hover:bg-white border border-emerald-200 px-1.5 py-0.5 rounded transition-all select-all mx-1 shadow-2xs"
+                      : "text-emerald-600 hover:text-emerald-800 hover:underline inline-flex items-center gap-1 font-bold bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded transition-all select-all mx-1 shadow-2xs"
+                  }
+                >
+                  {cleanUrl}
+                  <ExternalLink className="w-3.5 h-3.5 inline-block shrink-0" />
+                </a>
+                {trailingPunctuation}
+              </React.Fragment>
+            );
           }
 
           // 2. Is it a bold styled text block? (e.g., **текст**)
@@ -222,17 +255,21 @@ export default function App() {
               return (
                 <span
                   key={index}
-                  className="relative inline-block cursor-pointer font-black border-b-2 border-dashed border-emerald-500 text-emerald-800 bg-emerald-100/60 hover:bg-emerald-200/80 rounded px-1.5 py-0.5 transition-colors group mx-1"
+                  className={
+                    isUserMessage
+                      ? "relative inline-block cursor-pointer font-black border-b-2 border-dashed border-amber-300 text-amber-100 bg-emerald-800/80 hover:bg-emerald-700 rounded px-1.5 py-0.5 transition-colors group mx-1"
+                      : "relative inline-block cursor-pointer font-black border-b-2 border-dashed border-emerald-500 text-emerald-800 bg-emerald-100/60 hover:bg-emerald-200/80 rounded px-1.5 py-0.5 transition-colors group mx-1"
+                  }
                   onClick={() => setSelectedTerm(glossaryMatchInBold)}
                   title="Нажмите, чтобы прочитать банковское определение"
                 >
                   {boldText}
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                  <span className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full animate-pulse ${isUserMessage ? "bg-amber-400" : "bg-emerald-500"}`}></span>
                 </span>
               );
             }
 
-            return <strong key={index} className="font-extrabold text-slate-900">{boldText}</strong>;
+            return <strong key={index} className={isUserMessage ? "font-extrabold text-white" : "font-extrabold text-slate-900"}>{boldText}</strong>;
           }
 
           // 3. Is it a standalone glossary term (not wrapped in bold)?
@@ -248,12 +285,16 @@ export default function App() {
             return (
               <span
                 key={index}
-                className="relative inline-block cursor-pointer font-bold border-b-2 border-dashed border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 rounded px-1.5 py-0.2 transition-colors group mx-0.5"
+                className={
+                  isUserMessage
+                    ? "relative inline-block cursor-pointer font-bold border-b-2 border-dashed border-amber-300 text-amber-100 bg-emerald-800 hover:bg-emerald-750 rounded px-1.5 py-0.2 transition-colors group mx-0.5"
+                    : "relative inline-block cursor-pointer font-bold border-b-2 border-dashed border-emerald-500 text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 rounded px-1.5 py-0.2 transition-colors group mx-0.5"
+                }
                 onClick={() => setSelectedTerm(matchedTerm)}
                 title="Нажмите, чтобы прочитать банковское определение"
               >
                 {part}
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse ${isUserMessage ? "bg-amber-400" : "bg-emerald-50"}`}></span>
               </span>
             );
           }
@@ -944,6 +985,20 @@ export default function App() {
                     </div>
                   </div>
 
+                  {/* Tile 4: Контрагенты СберБизнес */}
+                  <div
+                    onClick={() => setIsCounterpartiesOpen(true)}
+                    className="bg-white border border-[#10b981]/20 hover:border-[#10b981] rounded-xl p-4 flex items-center space-x-3.5 transition-colors cursor-pointer group shadow-3xs hover:bg-emerald-50/10"
+                  >
+                    <div className="w-10 h-10 bg-emerald-100/50 rounded-lg flex items-center justify-center text-emerald-800 group-hover:bg-emerald-100 transition-colors">
+                      <Users className="w-5 h-5 stroke-[1.5]" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-xs font-bold text-slate-700 font-sans">Контрагенты СберБизнес</h4>
+                      <p className="text-[10px] text-slate-400 mt-0.5 font-medium">Просмотр списка и реквизитов РБ</p>
+                    </div>
+                  </div>
+
                   {/* Quick sandbox instruction block */}
                   <div className="p-4 bg-slate-50 border border-slate-200/55 rounded-xl text-[11px] leading-relaxed text-slate-500">
                     <p className="font-bold text-slate-705 uppercase tracking-widest text-[8.5px] mb-1 flex items-center font-sans">
@@ -1216,7 +1271,7 @@ export default function App() {
                         </div>
 
                         <p className="mt-1 leading-relaxed">
-                          {isUser ? msg.content : renderMessageContent(msg.content)}
+                          {renderMessageContent(msg.content, isUser)}
                         </p>
 
                         {/* Special interactive indicator for automatic handoff */}
@@ -1728,8 +1783,8 @@ export default function App() {
                               <span className="text-[9px] opacity-60 font-mono">{msg.timestamp}</span>
                             </div>
 
-                            <p className="mt-1 leading-relaxed text-slate-850">
-                              {isUser ? msg.content : renderMessageContent(msg.content)}
+                            <p className={`mt-1 leading-relaxed ${isUser ? "text-emerald-50" : "text-slate-850"}`}>
+                              {renderMessageContent(msg.content, isUser)}
                             </p>
 
                             {/* Automation metadata */}
@@ -1958,6 +2013,75 @@ export default function App() {
                 className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all cursor-pointer font-sans"
               >
                 Понятно
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Counterparties Modal */}
+      {isCounterpartiesOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-9999 animate-fade-in p-4">
+          <div className="bg-white border border-slate-200 shadow-2xl rounded-2xl max-w-2xl w-full p-6 relative">
+            <button
+              onClick={() => setIsCounterpartiesOpen(false)}
+              className="absolute top-4 right-4 p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex items-center space-x-3 text-emerald-700 mb-4">
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800">
+                <Users className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900 font-sans">Реестр контрагентов компании</h3>
+                <p className="text-[11px] text-slate-500 font-sans mt-0.5 font-medium">Активный профиль: <span className="text-slate-800 font-bold">{currentProfile.companyName}</span></p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-amber-50/70 border border-amber-100 rounded-xl text-[11px] text-amber-800 mb-4 leading-relaxed font-sans">
+              <strong>💡 Демо-режим тестирования:</strong> В СберБизнес реестр подгружается напрямую из банковской ERP-системы. Для текущего тестирования список контрагентов хранится локально в нашей базе Сбера. Наш ИИ-ассистент имеет полный доступ к реквизитам этих партнеров и деталям договоров!
+            </div>
+
+            <div className="space-y-3.5 max-h-[380px] overflow-y-auto pr-1">
+              {(mockCounterpartiesByRole[currentProfile.role === "director" ? "director" : "accountant"] || []).map((c: Counterparty) => (
+                <div key={c.id} className="border border-slate-100 rounded-xl p-4 hover:border-emerald-200 bg-[#fbfdfc] hover:bg-[#f6fcf9] transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-bold text-slate-800 text-sm font-sans">{c.name}</span>
+                      <span className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded font-mono select-all">УНП {c.unp}</span>
+                    </div>
+                    <p className="text-slate-500 text-[11px] font-mono select-all">Счет: {c.iban} ({c.bankName})</p>
+                    <p className="text-slate-600 font-medium font-sans">Контракт: {c.contract}</p>
+                    <p className="text-[11px] text-[#475569] font-sans">{c.balanceContext}</p>
+                    <div className="pt-0.5 flex items-center">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span>
+                      <span className="text-[10.5px] font-bold text-emerald-800 font-sans">{c.status}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setIsCounterpartiesOpen(false);
+                      setIsWidgetOpen(true);
+                      const queryText = `Расскажи подробнее про нашего контрагента ${c.name}. Какие у него реквизиты, УНП и состояние по нашему договору?`;
+                      handleSendMessage(undefined, queryText);
+                    }}
+                    className="shrink-0 flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-bold rounded-lg transition-all cursor-pointer shadow-3xs font-sans"
+                  >
+                    <Bot className="w-3.5 h-3.5" />
+                    <span>Спросить ИИ</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 pt-3.5 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setIsCounterpartiesOpen(false)}
+                className="px-4 py-2 bg-slate-950 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-all cursor-pointer font-sans"
+              >
+                Закрыть
               </button>
             </div>
           </div>

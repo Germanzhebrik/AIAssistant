@@ -44,3 +44,14 @@ export interface GlossaryTerm {
   shortDescription: string;
   detailedDescription: string;
 }
+
+export interface Counterparty {
+  id: string;
+  name: string;
+  unp: string;
+  iban: string;
+  bankName: string;
+  contract: string;
+  status: string;
+  balanceContext: string;
+}
