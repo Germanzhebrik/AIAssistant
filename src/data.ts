@@ -101,32 +101,6 @@ export const bankProfiles: Profile[] = [
         icon: "ShieldAlert"
       }
     ]
-  },
-  {
-    id: "profile-emp",
-    role: "employee",
-    name: "Дмитрий Игоревич Петров",
-    roleLabel: "Сотрудник",
-    companyName: "ООО 'ТехноПром'",
-    segment: "Малый и Средний Бизнес (SME)",
-    availableOffers: [
-      {
-        id: "offer-edu-1",
-        title: "Курсы СберУниверситета",
-        description: "Бесплатное обучение по бизнес-аналитике и повышению квалификации сотрудников холдинга.",
-        badge: "Обучение",
-        badgeColor: "bg-yellow-100 text-yellow-800 border-yellow-200",
-        icon: "BookOpen"
-      },
-      {
-        id: "offer-travel-1",
-        title: "СберБизнес Командировки",
-        description: "Удобный сервис покупки билетов и бронирования гостиниц в Беларуси и СНГ со скидкой до 10% для сотрудников.",
-        badge: "Новинка",
-        badgeColor: "bg-blue-100 text-blue-800 border-blue-200",
-        icon: "Truck"
-      }
-    ]
   }
 ];
 

@@ -87,10 +87,8 @@ export default function App() {
   useEffect(() => {
     if (currentProfile.role === "director") {
       setCurrentUrl("https://business.sberbank.ru/client/accounts/loans");
-    } else if (currentProfile.role === "accountant") {
-      setCurrentUrl("https://business.sberbank.ru/client/accounting/taxes");
     } else {
-      setCurrentUrl("https://business.sberbank.ru/client/employee/portal");
+      setCurrentUrl("https://business.sberbank.ru/client/accounting/taxes");
     }
     // Automatically select or create session matching current role if the current session belongs to another role
     if (sessions.length > 0) {
@@ -136,20 +134,18 @@ export default function App() {
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
   // Hooking up the role switcher smoothly
-  const handleRoleChange = (role: 'director' | 'accountant' | 'employee') => {
+  const handleRoleChange = (role: 'director' | 'accountant') => {
     const profile = bankProfiles.find(p => p.role === role);
     if (profile) {
       setCurrentProfile(profile);
     }
   };
 
-  const handleCreateNewSession = async (role: 'director' | 'accountant' | 'employee') => {
+  const handleCreateNewSession = async (role: 'director' | 'accountant') => {
     try {
       const title = role === "director"
         ? `Лимиты и финансирование #${sessions.length + 1}`
-        : role === "accountant"
-          ? `Налоговая отчетность и РСБУ #${sessions.length + 1}`
-          : `Заявки и командировки #${sessions.length + 1}`;
+        : `Налоговая отчетность и РСБУ #${sessions.length + 1}`;
 
       const res = await fetch("/api/sessions/new", {
         method: "POST",
@@ -361,8 +357,8 @@ export default function App() {
           setCrmPayload({
             session_id: currentSessionId,
             company_name: currentProfile.companyName,
-            client_id: currentProfile.role === 'director' ? 'CLI-1020409' : currentProfile.role === 'accountant' ? 'CLI-9941122' : 'CLI-5544332',
-            company_inn: currentProfile.role === 'director' || currentProfile.role === 'employee' ? '7721839212' : '5024310921',
+            client_id: currentProfile.role === 'director' ? 'CLI-1020409' : 'CLI-9941122',
+            company_inn: currentProfile.role === 'director' ? '7721839212' : '5024310921',
             user_role: currentProfile.role,
             user_title: currentProfile.roleLabel,
             current_page_url: currentUrl,
@@ -432,8 +428,8 @@ export default function App() {
     setCrmPayload({
       session_id: currentSessionId || "session-custom-manual",
       company_name: currentProfile.companyName,
-      client_id: currentProfile.role === 'director' ? 'CLI-1020409' : currentProfile.role === 'accountant' ? 'CLI-9941122' : 'CLI-5544332',
-      company_inn: currentProfile.role === 'director' || currentProfile.role === 'employee' ? '7721839212' : '5024310921',
+      client_id: currentProfile.role === 'director' ? 'CLI-1020409' : 'CLI-9941122',
+      company_inn: currentProfile.role === 'director' ? '7721839212' : '5024310921',
       user_role: currentProfile.role,
       user_title: currentProfile.roleLabel,
       current_page_url: currentUrl,
@@ -542,20 +538,10 @@ export default function App() {
                 >
                   📊 ИП Смирнова (Бухгалтер)
                 </button>
-                <button
-                  onClick={() => handleRoleChange("employee")}
-                  className={`px-2.5 py-1 rounded-lg font-bold text-[10.5px] transition-all cursor-pointer ${
-                    currentProfile.role === "employee"
-                      ? "bg-[#0b5435] text-white shadow-xs"
-                      : "text-slate-500 hover:bg-slate-100"
-                  }`}
-                >
-                  👤 ООО "ТехноПром" (Сотрудник)
-                </button>
               </div>
 
               {/* Action Buttons from right side of the Sber screenshot */}
-              <div className="flex items-center space-x-4 text-slate-500">
+              <div className="flex items-center space-x-3 text-slate-500">
                 <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors" title="Позвонить в банк">
                   <Phone className="w-5 h-5 stroke-[1.5]" />
                 </button>
@@ -570,7 +556,7 @@ export default function App() {
                 {/* Profile Widget from the screenshot */}
                 <div
                   onClick={() => {
-                    const nextRole = currentProfile.role === "director" ? "accountant" : currentProfile.role === "accountant" ? "employee" : "director";
+                    const nextRole = currentProfile.role === "director" ? "accountant" : "director";
                     handleRoleChange(nextRole);
                   }}
                   className="flex items-center space-x-2 border-l border-slate-100 pl-4 py-1 cursor-pointer hover:opacity-90 active:scale-98 transition-all"
@@ -581,9 +567,7 @@ export default function App() {
                       src={
                         currentProfile.role === "director"
                           ? "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&auto=format&fit=crop&q=60" // Director photo
-                          : currentProfile.role === "accountant"
-                            ? "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60" // Accountant female photo
-                            : "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=60" // Employee male photo
+                          : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60" // Accountant female photo
                       }
                       alt="Avatar"
                       className="w-full h-full object-cover"
@@ -591,12 +575,12 @@ export default function App() {
                     />
                   </div>
                   <span className="hidden md:inline text-xs font-bold text-slate-700 select-none">
-                    {currentProfile.role === "director" ? "ВЛАДЕЛЕЦ БИЗНЕСА" : currentProfile.role === "accountant" ? "ГЛАВНЫЙ БУХГАЛТЕР" : "СОТРУДНИК"}
+                    {currentProfile.role === "director" ? "ВЛАДЕЛЕЦ БИЗНЕСА" : "ГЛАВНЫЙ БУХГАЛТЕР"}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </div>
 
-                <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors pl-2" title="Помощь">
+                <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors pl-1" title="Помощь">
                   <HelpCircle className="w-5 h-5 stroke-[1.5]" />
                 </button>
               </div>
@@ -699,7 +683,7 @@ export default function App() {
                     DEMO ЮРИДИЧЕСКОЕ ЛИЦО
                   </h1>
                   <p className="text-[11.5px] text-slate-400 mt-1 font-semibold block">
-                    Компания: <span className="text-slate-700">{currentProfile.companyName}</span> • УНП: {currentProfile.role === "director" || currentProfile.role === "employee" ? "191234567" : "192345678"} • Текущая роль: {currentProfile.roleLabel}
+                    Компания: <span className="text-slate-700">{currentProfile.companyName}</span> • УНП: {currentProfile.role === "director" ? "191234567" : "192345678"} • Текущая роль: {currentProfile.roleLabel}
                   </p>
                 </div>
 
@@ -1094,22 +1078,11 @@ export default function App() {
                   className={`flex-1 text-center py-1.5 rounded-lg text-[9px] font-bold transition-all ${
                     currentProfile.role === "accountant"
                       ? "bg-white text-[#0b5435] shadow-xs border border-slate-200"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+                      : "text-slate-500 hover:bg-slate-700 hover:bg-white/40"
                   }`}
                   title="Главный бухгалтер"
                 >
                   📊 Бухгалтер
-                </button>
-                <button
-                  onClick={() => handleRoleChange("employee")}
-                  className={`flex-1 text-center py-1.5 rounded-lg text-[9px] font-bold transition-all ${
-                    currentProfile.role === "employee"
-                      ? "bg-white text-[#0b5435] shadow-xs border border-slate-200"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
-                  title="Сотрудник"
-                >
-                  👤 Сотрудник
                 </button>
               </div>
 
@@ -1410,7 +1383,7 @@ export default function App() {
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                     Выберите бизнес-роль
                   </h3>
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-2 gap-1.5">
                     <button
                       onClick={() => handleRoleChange("director")}
                       className={`p-2.5 rounded-lg border transition-all text-left flex flex-col justify-between cursor-pointer ${
@@ -1444,23 +1417,6 @@ export default function App() {
                       </span>
                       <span className="text-[10px] font-extrabold mt-1.5 leading-none">ИП Смир...</span>
                     </button>
-
-                    <button
-                      onClick={() => handleRoleChange("employee")}
-                      className={`p-2.5 rounded-lg border transition-all text-left flex flex-col justify-between cursor-pointer ${
-                        currentProfile.role === "employee"
-                          ? "border-emerald-600 bg-emerald-50/55 shadow-xs"
-                          : "border-slate-200 hover:bg-slate-50/80 hover:border-slate-300"
-                      }`}
-                      title="Сотрудник юридического лица (ООО 'ТехноПром')"
-                    >
-                      <span className={`text-[9px] uppercase font-black tracking-wider leading-none ${
-                        currentProfile.role === "employee" ? "text-emerald-700" : "text-slate-400"
-                      }`}>
-                        Сотрудник
-                      </span>
-                      <span className="text-[10px] font-extrabold mt-1.5 leading-none">ООО 'Техно...'</span>
-                    </button>
                   </div>
 
                   {/* Company Meta Info Widget with Interactive Elements */}
@@ -1474,7 +1430,7 @@ export default function App() {
                     <div className="flex justify-between">
                       <span className="text-slate-500">УНП:</span>
                       <span className="font-mono text-slate-700">
-                        {currentProfile.role === "director" || currentProfile.role === "employee" ? "191234567" : "192345678"}
+                        {currentProfile.role === "director" ? "191234567" : "192345678"}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1573,7 +1529,7 @@ export default function App() {
                       {currentProfile.companyName}
                     </span>
                     <span className="text-[11px] text-emerald-200 font-mono">
-                      УНП {currentProfile.role === "director" || currentProfile.role === "employee" ? "191234567" : "192345678"}
+                      УНП {currentProfile.role === "director" ? "191234567" : "192345678"}
                     </span>
                   </div>
 
@@ -1598,7 +1554,7 @@ export default function App() {
                         <p className="text-[10px] text-amber-300 mt-1 font-semibold">Ожидает акцепта</p>
                       </div>
                     </div>
-                  ) : currentProfile.role === "accountant" ? (
+                  ) : (
                     <div className="grid grid-cols-3 gap-4" id="accountant-fin">
                       <div>
                         <p className="text-[10px] text-emerald-200 leading-none">Консультационный лимит УСН</p>
@@ -1615,19 +1571,6 @@ export default function App() {
                         <p className="text-xl font-bold mt-1 tracking-tight">Выполнено</p>
                         <p className="text-[10px] text-emerald-200 mt-1">Оплачено за квартал</p>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between bg-emerald-950/35 p-3.5 rounded-lg border border-emerald-700/30" id="employee-locked-fin">
-                      <div className="flex items-center space-x-3.5">
-                        <div className="p-2 bg-emerald-900/60 rounded-xl text-emerald-300">
-                          <EyeOff className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-white font-sans">Балансовые активы компании скрыты политиками безопасности</p>
-                          <p className="text-[10.5px] text-emerald-200/90 mt-0.5 leading-normal font-sans">Вы залогинены как Сотрудник. Доступ в СберБизнес Командировки и СберУниверситет открыт.</p>
-                        </div>
-                      </div>
-                      <span className="text-[9.5px] uppercase font-black text-emerald-300 bg-emerald-950/50 border border-emerald-800/80 px-2.5 py-1 rounded tracking-wider whitespace-nowrap">Просмотр закрыт</span>
                     </div>
                   )}
                 </div>

@@ -23,7 +23,7 @@ export interface Offer {
 
 export interface Profile {
   id: string;
-  role: 'director' | 'accountant' | 'employee';
+  role: 'director' | 'accountant';
   name: string;
   roleLabel: string;
   companyName: string;
@@ -35,7 +35,7 @@ export interface ChatSession {
   id: string;
   title: string;
   date: string;
-  role: 'director' | 'accountant' | 'employee';
+  role: 'director' | 'accountant';
   messages: Message[];
 }
 
