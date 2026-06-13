@@ -1,0 +1,8 @@
+{
+  "name": "Remix: SberBusiness AI Assistant",
+  "description": "Enterprise AI Assistant for SberBusiness online banking, including interactive demo, role-based personalization, support handoff, session histories, and full technical documentation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
