@@ -2775,7 +2775,8 @@ export default function App() {
                       <div
                         id="sber-accounts-card"
                         style={{
-                          width: '772px',
+                          width: '100%',
+                          maxWidth: '772px',
                           height: '200px',
                           borderRadius: '25px',
                           border: '1.5px solid #107F8C',
@@ -2789,7 +2790,8 @@ export default function App() {
                           padding: '16px 16px 16px 137px',
                           fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                           color: '#FFF',
-                          userSelect: 'none'
+                          userSelect: 'none',
+                          boxSizing: 'border-box'
                         }}
                       >
                         {/* Left Mascot Image */}
@@ -2816,16 +2818,18 @@ export default function App() {
                         <div
                           style={{
                             display: 'flex',
-                            width: '619px',
+                            width: '100%',
                             justifyContent: 'space-between',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            boxSizing: 'border-box'
                           }}
                           id="card-top-header"
                         >
                           <div
                             style={{
                               display: 'flex',
-                              width: '320px',
+                              flex: 1,
+                              minWidth: 0,
                               height: '32px',
                               flexDirection: 'column',
                               justifyContent: 'center',
@@ -2836,7 +2840,10 @@ export default function App() {
                               fontSize: '20px',
                               fontStyle: 'normal',
                               fontWeight: 600,
-                              lineHeight: '32px'
+                              lineHeight: '32px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
                             }}
                             id="card-company-name"
                           >
@@ -2846,7 +2853,6 @@ export default function App() {
                           <div
                             style={{
                               display: 'flex',
-                              width: '260px',
                               height: '32px',
                               flexDirection: 'column',
                               justifyContent: 'center',
@@ -2857,7 +2863,9 @@ export default function App() {
                               fontSize: '13px',
                               fontStyle: 'normal',
                               fontWeight: 400,
-                              lineHeight: '32px'
+                              lineHeight: '32px',
+                              flexShrink: 0,
+                              marginLeft: '12px'
                             }}
                             id="card-inn-kpp"
                           >
@@ -2869,10 +2877,11 @@ export default function App() {
                         <div
                           style={{
                             display: 'flex',
-                            width: '619px',
+                            width: '100%',
                             justifyContent: 'space-between',
                             alignItems: 'stretch',
-                            marginTop: '8px'
+                            marginTop: '8px',
+                            boxSizing: 'border-box'
                           }}
                           id="card-stats-row"
                         >
@@ -2880,7 +2889,8 @@ export default function App() {
                           <div
                             style={{
                               display: 'flex',
-                              width: '205px',
+                              flex: 1,
+                              minWidth: 0,
                               flexDirection: 'column',
                               alignItems: 'center',
                               textAlign: 'center'
@@ -2890,7 +2900,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '205px',
+                                width: '100%',
                                 height: '32px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -2904,7 +2914,11 @@ export default function App() {
                                 fontSize: '12px',
                                 fontStyle: 'normal',
                                 fontWeight: 400,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                padding: '0 4px'
                               }}
                             >
                               {col1Title}
@@ -2913,7 +2927,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '175px',
+                                width: '100%',
                                 height: '43px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -2924,7 +2938,10 @@ export default function App() {
                                 fontSize: '24px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
                               className="mt-1"
                             >
@@ -2934,7 +2951,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '205px',
+                                width: '100%',
                                 height: '32px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -2945,7 +2962,10 @@ export default function App() {
                                 fontSize: '12.5px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
                             >
                               {col1Sub}
@@ -2953,13 +2973,14 @@ export default function App() {
                           </div>
 
                           {/* Divider 1 */}
-                          <div className="w-[1px] bg-white/20 my-1 self-stretch" id="card-div-1" />
+                          <div className="w-[1px] bg-white/20 my-1 self-stretch mx-2" id="card-div-1" />
 
                           {/* Column 2 */}
                           <div
                             style={{
                               display: 'flex',
-                              width: '205px',
+                              flex: 1,
+                              minWidth: 0,
                               flexDirection: 'column',
                               alignItems: 'center',
                               textAlign: 'center'
@@ -2969,7 +2990,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '205px',
+                                width: '100%',
                                 height: '32px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -2983,7 +3004,11 @@ export default function App() {
                                 fontSize: '12px',
                                 fontStyle: 'normal',
                                 fontWeight: 400,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                padding: '0 4px'
                               }}
                             >
                               {col2Title}
@@ -2992,7 +3017,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '175px',
+                                width: '100%',
                                 height: '43px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -3003,7 +3028,10 @@ export default function App() {
                                 fontSize: '24px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
                               className="mt-1"
                             >
@@ -3013,7 +3041,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '205px',
+                                width: '100%',
                                 height: '32px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -3024,7 +3052,10 @@ export default function App() {
                                 fontSize: '12.5px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
                             >
                               {col2Sub}
@@ -3032,13 +3063,14 @@ export default function App() {
                           </div>
 
                           {/* Divider 2 */}
-                          <div className="w-[1px] bg-white/20 my-1 self-stretch" id="card-div-2" />
+                          <div className="w-[1px] bg-white/20 my-1 self-stretch mx-2" id="card-div-2" />
 
                           {/* Column 3 */}
                           <div
                             style={{
                               display: 'flex',
-                              width: '205px',
+                              flex: 1,
+                              minWidth: 0,
                               flexDirection: 'column',
                               alignItems: 'center',
                               textAlign: 'center'
@@ -3048,7 +3080,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '205px',
+                                width: '100%',
                                 height: '32px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -3062,7 +3094,11 @@ export default function App() {
                                 fontSize: '12px',
                                 fontStyle: 'normal',
                                 fontWeight: 400,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                                padding: '0 4px'
                               }}
                             >
                               {col3Title}
@@ -3071,7 +3107,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '175px',
+                                width: '100%',
                                 height: '43px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -3082,7 +3118,10 @@ export default function App() {
                                 fontSize: '24px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
                               className="mt-1"
                             >
@@ -3092,7 +3131,7 @@ export default function App() {
                             <div
                               style={{
                                 display: 'flex',
-                                width: '205px',
+                                width: '100%',
                                 height: '32px',
                                 flexDirection: 'column',
                                 justifyContent: 'center',
@@ -3104,7 +3143,10 @@ export default function App() {
                                 fontSize: '12.5px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: 'normal'
+                                lineHeight: 'normal',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
                               }}
                             >
                               {col3Sub}
