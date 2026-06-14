@@ -79,7 +79,7 @@ export const bankProfiles: Profile[] = [
       {
         id: "offer-payroll-1",
         title: "Зарплатный проект Сбера",
-        description: "Бесплатное подключение. 0% комиссии на зачисление зарплат сотрудникам на карты БЕЛКАРТ/Visa Сбера.",
+        description: "Бесплатное подключение 0% комиссии на зачисление зарплат сотрудникам на карты.",
         badge: "Популярно",
         badgeColor: "bg-orange-100 text-orange-800 border-orange-200",
         icon: "Users"
@@ -87,15 +87,15 @@ export const bankProfiles: Profile[] = [
       {
         id: "offer-accounting-1",
         title: "Моя Бухгалтерия Онлайн",
-        description: "Автоматический расчет налога по УСН 6% в Беларуси бесплатно первые 3 месяца обслуживания.",
+        description: "Полная автоматическая отчётность на УСН 6% / 15% бесплатно первые 3 месяца.",
         badge: "Подарок",
         badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
         icon: "BookOpen"
       },
       {
         id: "offer-tax-check",
-        title: "Экспресс-аудит налогов",
-        description: "Комплексная проверка налоговых рисков перед сдачей отчетности по НСБУ со скидкой 50% от партнеров Сбера.",
+        title: "СберРешения: Экспресс-аудит",
+        description: "Комплексная проверка налоговых рисков перед сдачей отчетности по РСБУ со скидкой 50%.",
         badge: "Безопасность",
         badgeColor: "bg-red-100 text-red-800 border-red-200",
         icon: "ShieldAlert"

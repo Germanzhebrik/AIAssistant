@@ -34,6 +34,7 @@ import {
   Maximize2,
   Minimize2,
   ChevronLeft,
+  ArrowLeft,
   X,
   EyeOff,
   Phone,
@@ -79,6 +80,11 @@ export default function App() {
 
   // Term Help Popover State
   const [selectedTerm, setSelectedTerm] = useState<GlossaryTerm | null>(null);
+
+  // Scrollbar synchronization state for Custom slider track
+  const [historyScrollProgress, setHistoryScrollProgress] = useState(0);
+  const [chatScrollProgress, setChatScrollProgress] = useState(0);
+  const [widgetScrollProgress, setWidgetScrollProgress] = useState(0);
 
   // CRM Handoff state monitoring
   const [isOperatorActive, setIsOperatorActive] = useState(false);
@@ -627,89 +633,102 @@ export default function App() {
         <div className="flex-1 flex flex-col bg-[#ffffff] font-sans relative min-h-screen" id="landing-website">
 
           {/* Top Navbar */}
-          <header className="bg-white border-b border-slate-200 py-3 px-6 flex items-center justify-between sticky top-0 z-40 shadow-xs" id="sber-header">
-            {/* Sber Circle Logo Mock */}
-            <div className="flex items-center space-x-3">
-              <div className="relative w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-2xs overflow-hidden" style={{ background: "linear-gradient(135deg, #00b06c 0%, #1ea133 100%)" }}>
-                {/* Sber tick symbol in SVG */}
-                <svg className="w-4.5 h-4.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+          <header className="w-full h-[60px] bg-white border-b border-[#D0D7DD] px-6 flex items-center justify-between sticky top-0 z-40 select-none" id="sber-header">
+            {/* Sber Corporate Logo Zone */}
+            <div className="flex items-center space-x-4">
+              <div className="flex flex-col items-start justify-center">
+                <img
+                  src="/Logotype.svg"
+                  className="h-[33px] w-[200px] object-contain select-none pointer-events-none"
+                  alt="СБЕР Бизнес"
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    width: '164px',
+                    height: '16px',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    color: '#107F8C',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                    fontSize: '8px',
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '32px',
+                    marginLeft: '37px'
+                  }}
+                  className="select-none pointer-events-none"
+                >
+                  Корпоративная экосистема веб-банка
+                </div>
               </div>
-              <div className="flex items-baseline space-x-0.5">
-                <span className="font-extrabold text-[#006644] text-[18px] tracking-tight font-sans">СБЕР</span>
-                <span className="font-light text-[#008259] text-[18px] font-sans">Бизнес</span>
+              <div className="bg-gradient-to-r from-[#21A19A] to-[#107F8C] text-white text-[12px] font-semibold px-3.5 py-1.5 rounded-[8px] leading-none flex items-center justify-center">
+                ИИ-ассистент
               </div>
             </div>
 
-            {/* Quick Demo Switcher Widget in Header to maintain interactive demo capability */}
+            {/* Right-side Action Controls */}
             <div className="flex items-center space-x-5">
-              <div className="hidden sm:flex items-center space-x-1.5 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1 text-xs">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mr-1">Контекст:</span>
-                <button
-                  onClick={() => handleRoleChange("director")}
-                  className={`px-2.5 py-1 rounded-lg font-bold text-[10.5px] transition-all cursor-pointer ${
-                    currentProfile.role === "director"
-                      ? "bg-[#0b5435] text-white shadow-xs"
-                      : "text-slate-500 hover:bg-slate-100"
-                  }`}
-                >
-                  💼 ООО "ТехноПром" (Владелец)
-                </button>
-                <button
-                  onClick={() => handleRoleChange("accountant")}
-                  className={`px-2.5 py-1 rounded-lg font-bold text-[10.5px] transition-all cursor-pointer ${
-                    currentProfile.role === "accountant"
-                      ? "bg-[#0b5435] text-white shadow-xs"
-                      : "text-slate-500 hover:bg-slate-100"
-                  }`}
-                >
-                  📊 ИП Смирнова (Бухгалтер)
-                </button>
-              </div>
+              {/* Functional View Mode Switch Toggle */}
+              <button
+                onClick={() => setViewMode("app")}
+                className="px-3.5 py-1.5 bg-[#21A19A] hover:bg-[#107F8C] active:scale-95 text-white rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs font-sans shrink-0"
+                title="Перейти в личный кабинет ИИ-ассистента"
+              >
+                <span>Личный кабинет</span>
+                <ChevronRight className="w-3.5 h-3.5 text-white" />
+              </button>
 
-              {/* Action Buttons from right side of the Sber screenshot */}
-              <div className="flex items-center space-x-3 text-slate-500">
-                <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors" title="Позвонить в банк">
-                  <Phone className="w-5 h-5 stroke-[1.5]" />
-                </button>
-                <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors relative" title="Уведомления">
-                  <Bell className="w-5 h-5 stroke-[1.5]" />
-                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                </button>
-                <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors" title="Письма">
-                  <Mail className="w-5 h-5 stroke-[1.5]" />
+              <div className="flex items-center space-x-4">
+                {/* Phone icon */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer relative" title="Позвонить в банк">
+                  <img src="/ic_srv_phone_default_20_w.svg" className="w-[20px] h-[20px]" alt="Phone" />
                 </button>
 
-                {/* Profile Widget from the screenshot */}
+                {/* Bell icon with "4" notification badge */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer relative" title="Уведомления">
+                  <img src="/ic_srv_bell_default_20_w.svg" className="w-[20px] h-[20px]" alt="Bell" />
+                  <span className="absolute -top-1.5 -right-1.5 w-[16px] h-[16px] bg-[#DB1237] text-white rounded-full text-[10px] font-bold flex items-center justify-center border border-white">
+                    4
+                  </span>
+                </button>
+
+                {/* Envelope icon with "4" messages badge */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer relative" title="Письма">
+                  <img src="/ic_srv_envelope_default_20_w.svg" className="w-[20px] h-[20px]" alt="Mail" />
+                  <span className="absolute -top-1.5 -right-1.5 w-[16px] h-[16px] bg-[#DB1237] text-white rounded-full text-[10px] font-bold flex items-center justify-center border border-white">
+                    4
+                  </span>
+                </button>
+
+                {/* Customer client login widget with user role rotating actions */}
                 <div
                   onClick={() => {
                     const nextRole = currentProfile.role === "director" ? "accountant" : "director";
                     handleRoleChange(nextRole);
                   }}
-                  className="flex items-center space-x-2 border-l border-slate-100 pl-4 py-1 cursor-pointer hover:opacity-90 active:scale-98 transition-all"
+                  className="flex items-center space-x-2 pl-2 py-1 cursor-pointer hover:opacity-90 active:scale-98 transition-all"
                   title="Нажмите для циклической смены роли"
                 >
-                  <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center overflow-hidden relative shadow-2xs border border-emerald-500/20">
-                    <img
-                      src={
-                        currentProfile.role === "director"
-                          ? "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&auto=format&fit=crop&q=60" // Director photo
-                          : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=60" // Accountant female photo
-                      }
-                      alt="Avatar"
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <span className="hidden md:inline text-xs font-bold text-slate-700 select-none">
-                    {currentProfile.role === "director" ? "ВЛАДЕЛЕЦ БИЗНЕСА" : "ГЛАВНЫЙ БУХГАЛТЕР"}
+                  <img
+                    src="/Customer logo.svg"
+                    className="w-[40px] h-[40px] rounded-full object-cover border border-[#D0D7DD]"
+                    alt="Customer Logo"
+                  />
+                  <span className="hidden md:inline text-[13px] font-semibold text-[#1F1F22] select-none font-sans">
+                    ЗАО «СЕРВИС ДЕСК»
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                  <img
+                    src="/ic_srv_arrowdown_default_16_w.svg"
+                    className="w-[16px] h-[16px]"
+                    alt="Arrow down"
+                  />
                 </div>
 
-                <button className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-600 transition-colors pl-1" title="Помощь">
-                  <HelpCircle className="w-5 h-5 stroke-[1.5]" />
+                {/* Question icon */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer" title="Помощь">
+                  <img src="/ic_srv_question_default_20_w.svg" className="w-[20px] h-[20px]" alt="Help" />
                 </button>
               </div>
             </div>
@@ -1148,328 +1167,525 @@ export default function App() {
           {/* ================= CHAT FLOATING WIDGET LAUNCHER & PANEL ================= */}
           {/* Floating Circle Button */}
           <div
-            className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-emerald-600 to-[#128a56] hover:from-emerald-700 hover:to-emerald-600 text-white rounded-full flex items-center justify-center shadow-2xl cursor-pointer transition-all transform hover:scale-105 active:scale-95 group z-50 border border-emerald-400/20"
             onClick={() => setIsWidgetOpen(!isWidgetOpen)}
             title="Открыть ИИ-Ассистента Сбера"
+            style={{
+              position: 'fixed',
+              bottom: '16px',
+              right: '16px',
+              width: '89px',
+              height: '90px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              aspectRatio: '89/90',
+              cursor: 'pointer',
+              zIndex: 150,
+            }}
+            className="transition-all transform hover:scale-105 active:scale-95 group"
           >
-            <div className="absolute inset-0 rounded-full bg-emerald-500/20 animate-ping pointer-events-none"></div>
-            {isWidgetOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Bot className="w-6.5 h-6.5 animate-pulse" />
-            )}
+            <img
+              src="/cat.png"
+              alt="Кот Ассистент"
+              style={{
+                width: '89px',
+                height: '90px',
+                objectFit: 'contain'
+              }}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2321A19A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><path d='M8 14s1.5 2 4 2 4-2 4-2'></path><line x1='9' y1='9' x2='9.01' y2='9'></line><line x1='15' y1='15' x2='15.01' y2='15'></line></svg>";
+              }}
+            />
           </div>
-
-          {/* Floating Compact Chat Window */}
           {isWidgetOpen && (
-            <div className="fixed bottom-22 right-6 w-[410px] h-[630px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col z-50 overflow-hidden animate-fade-in text-slate-800">
-
-              {/* Widget Header with Sber Green design */}
-              <div className="bg-gradient-to-r from-[#0b5435] to-[#128a56] text-white p-4 flex items-center justify-between shadow-sm">
-                <div className="flex items-center space-x-2.5">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">
-                    С
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-xs tracking-wide">СберИИ Консультант</h3>
-                    <div className="flex items-center space-x-1">
-                      <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping"></span>
-                      <span className="text-[9.5px] text-emerald-200 font-medium">В режиме интеграции • Онлайн</span>
-                    </div>
-                  </div>
+            <div
+              style={{
+                position: 'fixed',
+                bottom: '112px',
+                right: '16px',
+                width: '488px',
+                height: '560px',
+                borderRadius: '8px',
+                background: '#FFF',
+                boxShadow: '0 1px 3px 0 rgba(31, 31, 34, 0.25)',
+                display: 'flex',
+                flexDirection: 'column',
+                zIndex: 100,
+                overflow: 'hidden'
+              }}
+              className="animate-fade-in"
+              id="sber-mini-chat-popup"
+            >
+              {/* Header Container */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '16px 20px',
+                  boxSizing: 'border-box',
+                  background: '#FFF'
+                }}
+              >
+                {/* Title */}
+                <div
+                  style={{
+                    display: 'flex',
+                    width: '227px',
+                    height: '32px',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    aspectRatio: '227/32',
+                    color: '#1F1F22',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                    fontSize: '21px',
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '32px'
+                  }}
+                >
+                  ИИ-ассистент СберГид
                 </div>
 
-                {/* Header Action Buttons */}
-                <div className="flex items-center space-x-1.5">
+                {/* Right side controls: button and close icon */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <button
                     onClick={() => {
                       setViewMode("dashboard");
                       setIsWidgetOpen(false);
                     }}
-                    className="p-1.5 bg-emerald-800/60 hover:bg-emerald-800 rounded-lg text-emerald-100 flex items-center space-x-1 text-[10px] font-bold transition-all border border-emerald-700/40"
-                    title="Развернуть на весь экран (Полная панель)"
+                    style={{
+                      display: 'flex',
+                      width: '184px',
+                      height: '34px',
+                      padding: '0 11px',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      borderRadius: '8px',
+                      background: '#107F8C',
+                      border: 'none',
+                      color: '#FFF',
+                      cursor: 'pointer',
+                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      lineHeight: 'normal'
+                    }}
+                    className="hover:opacity-90 active:scale-98 transition-all"
                   >
-                    <Maximize2 className="w-3.5 h-3.5" />
-                    <span>Полная версия</span>
+                    Расширенный режим
                   </button>
 
-                  <button
+                  <img
+                    src="/ic_srv_close_default_20_w.svg"
+                    alt="Close"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%231F1F22' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18'></line><line x1='6' y1='6' x2='18' y2='18'></line></svg>";
+                    }}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer'
+                    }}
                     onClick={() => setIsWidgetOpen(false)}
-                    className="p-1 hover:bg-emerald-800/60 text-emerald-200 hover:text-white rounded-lg transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  />
                 </div>
               </div>
 
-              {/* Compact Active Role Selector Tabs inside Widget */}
-              <div className="bg-slate-50 p-1.5 flex border-b border-slate-200 gap-1">
-                <button
-                  onClick={() => handleRoleChange("director")}
-                  className={`flex-1 text-center py-1.5 rounded-lg text-[9px] font-bold transition-all ${
-                    currentProfile.role === "director"
-                      ? "bg-white text-[#0b5435] shadow-xs border border-slate-200"
-                      : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
-                  }`}
-                  title="Владелец бизнеса / Генеральный директор"
-                >
-                  💼 Владелец
-                </button>
-                <button
-                  onClick={() => handleRoleChange("accountant")}
-                  className={`flex-1 text-center py-1.5 rounded-lg text-[9px] font-bold transition-all ${
-                    currentProfile.role === "accountant"
-                      ? "bg-white text-[#0b5435] shadow-xs border border-slate-200"
-                      : "text-slate-500 hover:bg-slate-700 hover:bg-white/40"
-                  }`}
-                  title="Главный бухгалтер"
-                >
-                  📊 Бухгалтер
-                </button>
-              </div>
-
-              {/* Screen URL bar mockup */}
-              <div className="bg-slate-100/80 px-3 py-1 border-b border-slate-200/60 text-[9px] text-slate-400 flex items-center justify-between font-mono">
-                <span>Адрес страницы на сайте:</span>
-                <span className="text-emerald-700 font-bold truncate max-w-[200px]">
-                  {currentUrl}
-                </span>
-              </div>
-
-              {/* Highly prominent prompt-banner to maximize the widget to the full screen web-app */}
+              {/* Rectangle 3 - Divider line */}
               <div
-                onClick={() => {
-                  setViewMode("dashboard");
-                  setIsWidgetOpen(false);
+                style={{
+                  width: '100%',
+                  height: '1px',
+                  background: '#D0D7DD',
+                  flexShrink: 0
                 }}
-                className="bg-emerald-50 hover:bg-emerald-100 border-b border-emerald-200 text-[10.5px] text-emerald-900 font-bold px-3 py-2 flex items-center justify-between cursor-pointer transition-colors"
-                title="Развернуть на весь экран (Полная панель)"
+              />
+
+              {/* Main chat log container with Custom Scrollbar */}
+              <div
+                style={{
+                  flex: 1,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: '#FFF'
+                }}
               >
-                <div className="flex items-center space-x-1.5 min-w-0">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 animate-pulse flex-shrink-0" />
-                  <span className="truncate">Развернуть ИИ-Ассистента во весь экран</span>
-                </div>
-                <div className="flex items-center space-x-1 text-emerald-800 text-[10px] uppercase font-black tracking-wider flex-shrink-0">
-                  <span>Развернуть</span>
-                  <Maximize2 className="w-3 h-3" />
-                </div>
-              </div>
+                {/* Scrollable messages area */}
+                <div
+                  onScroll={(e) => {
+                    const target = e.currentTarget;
+                    const scrollHeight = target.scrollHeight;
+                    const clientHeight = target.clientHeight;
+                    const scrollTop = target.scrollTop;
+                    const progress = scrollHeight > clientHeight ? scrollTop / (scrollHeight - clientHeight) : 0;
+                    setWidgetScrollProgress(progress);
+                  }}
+                  style={{
+                    width: 'calc(100% - 14px)',
+                    height: '100%',
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                    padding: '16px 12px 16px 16px',
+                    boxSizing: 'border-box',
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}
+                  className="widget-messages-container"
+                >
+                  {/* Read actual list or fallback to the requested design values */}
+                  {(() => {
+                    const displayMessages = (currentSession?.messages && currentSession.messages.length > 0)
+                      ? currentSession.messages
+                      : [
+                          {
+                            id: "default-msg-user",
+                            role: "user",
+                            content: "Напомни оплатить налог на прибыль 28 числа",
+                            timestamp: "03.06.2026, 13:37:22",
+                          },
+                          {
+                            id: "default-msg-bot",
+                            role: "assistant",
+                            content: "Напоминание установлено на 28 июня",
+                            timestamp: "03.06.2026, 13:38:15",
+                          },
+                        ];
 
-              {/* Widget Message Area */}
-              <div className="flex-1 p-3.5 overflow-y-auto space-y-3 relative bg-slate-50" style={{ maxHeight: "420px" }}>
+                    return displayMessages.map((msg, index) => {
+                      const isUser = msg.role === "user";
+                      if (isUser) {
+                        return (
+                          <div
+                            key={msg.id || index}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              width: '100%'
+                            }}
+                          >
+                            {/* Rectangle 6557 - сообщения юзера */}
+                            <div
+                              style={{
+                                width: '450px',
+                                minHeight: '90px',
+                                borderRadius: '10px',
+                                background: '#21A19A',
+                                padding: '12px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                boxSizing: 'border-box',
+                                gap: '6px'
+                              }}
+                            >
+                              {/* Header Row */}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                {/* Label: Вы */}
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '63px',
+                                    height: '24px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    aspectRatio: '63/43',
+                                    color: '#FFF',
+                                    fontFamily: 'Roboto, -apple-system, sans-serif',
+                                    fontSize: '20px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 500,
+                                    lineHeight: 'normal',
+                                    letterSpacing: '-0.25px'
+                                  }}
+                                >
+                                  Вы
+                                </div>
 
-                {(!currentSession || currentSession.messages.length === 0) && (
-                  <div className="bg-white border border-slate-200 p-4 rounded-xl text-center space-y-2.5 my-1 shadow-xs">
-                    <div className="w-8 h-8 bg-emerald-50 text-emerald-800 rounded-full flex items-center justify-center mx-auto">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <div className="max-w-xs mx-auto">
-                      <h4 className="font-bold text-slate-700 text-[11px] uppercase tracking-wider">
-                        Начало сессии чата
-                      </h4>
-                      <p className="text-[10.5px] text-slate-500 mt-0.5">
-                        Задайте вопрос СберИИ о ваших кредитных лимитах, налогах или отчетности РСБУ. Нажмите на подсказки ниже:
-                      </p>
-                    </div>
+                                {/* Timestamp */}
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '176px',
+                                    height: '8px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#FFF',
+                                    fontFeatureSettings: "'liga' off, 'clig' off",
+                                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                    fontSize: '11px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 400,
+                                    lineHeight: '24px',
+                                    textAlign: 'right'
+                                  }}
+                                >
+                                  {msg.timestamp || "03.06.2026, 13:37:22"}
+                                </div>
+                              </div>
 
-                    {currentProfile.role === "director" ? (
-                      <div className="space-y-1.5 max-w-xs mx-auto text-[10.5px]">
-                        <button
-                          onClick={() => handleSendMessage(undefined, "Какие условия овердрафта и кредитования доступны нашей компании ООО 'ТехноПром'?")}
-                          className="w-full text-left p-2 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-lg transition-colors text-slate-700 block font-medium"
-                        >
-                          → Рассчитать овердрафт компании
-                        </button>
-                        <button
-                          onClick={() => handleSendMessage(undefined, "Чем выгоден лизинг оборудования для ООО 'ТехноПром' по сравнению с кредитом?")}
-                          className="w-full text-left p-2 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-lg transition-colors text-slate-700 block font-medium"
-                        >
-                          → Лизинг оборудования ООО
-                        </button>
-                      </div>
-                    ) : currentProfile.role === "accountant" ? (
-                      <div className="space-y-1.5 max-w-xs mx-auto text-[10.5px]">
-                        <button
-                          onClick={() => handleSendMessage(undefined, "Как сдать ближайший отчет по налогам и какие требования РСБУ мы должны учесть?")}
-                          className="w-full text-left p-2 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-lg transition-colors text-slate-700 block font-medium"
-                        >
-                          → Налоги и отчет РСБУ по УСН
-                        </button>
-                        <button
-                          onClick={() => handleSendMessage(undefined, "Какие регламенты по валютному контролю при сумме контракта 45 000 USD?")}
-                          className="w-full text-left p-2 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-lg transition-colors text-slate-700 block font-medium"
-                        >
-                          → Правила валютного контроля
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5 max-w-xs mx-auto text-[10.5px]">
-                        <button
-                          onClick={() => handleSendMessage(undefined, "Какие обучающие программы и курсы СберУниверситета открыты по моему профилю?")}
-                          className="w-full text-left p-2 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-lg transition-colors text-slate-700 block font-medium"
-                        >
-                          → Посмотреть программы СберУниверситета
-                        </button>
-                        <button
-                          onClick={() => handleSendMessage(undefined, "Как запустить бронирование отеля и авиабилетов в системе СберБизнес Командировки?")}
-                          className="w-full text-left p-2 border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/20 rounded-lg transition-colors text-slate-700 block font-medium"
-                        >
-                          → Оформить командировку/отель
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                              {/* Divider Line */}
+                              <div style={{ width: '100%', height: '1px', background: 'rgba(255, 255, 255, 0.25)' }} />
 
-                {/* Conversation line logs */}
-                {currentSession?.messages.map((msg) => {
-                  const isUser = msg.role === "user";
-                  const isOperatorText = msg.role === "operator";
-
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`flex ${isUser ? "justify-end" : "justify-start"} items-start gap-2`}
-                    >
-                      {!isUser && (
-                        <div className={`p-1 rounded-lg flex-shrink-0 ${
-                          isOperatorText ? "bg-amber-100 text-amber-800" : "bg-emerald-50 text-emerald-700"
-                        }`}>
-                          {isOperatorText ? <Users className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
-                        </div>
-                      )}
-
-                      <div className={`max-w-[85%] rounded-xl p-3 text-[11px] shadow-xs relative ${
-                        isUser
-                          ? "bg-emerald-700 text-white rounded-br-none"
-                          : isOperatorText
-                            ? "bg-amber-50/95 border border-amber-200 text-slate-800 rounded-bl-none"
-                            : "bg-white border border-slate-200 text-slate-800 rounded-bl-none"
-                      }`}>
-                        <div className="flex items-center justify-between mb-1 border-b pb-1 border-slate-100">
-                          <span className={`font-bold ${isUser ? "text-emerald-100" : isOperatorText ? "text-amber-800" : "text-emerald-850"}`}>
-                            {isUser
-                              ? "Вы"
-                              : isOperatorText
-                                ? "Лайв оператор: Александр"
-                                : "ИИ-Ассистент"}
-                          </span>
-                          <span className="text-[8.5px] opacity-60 font-mono">{msg.timestamp}</span>
-                        </div>
-
-                        <p className="mt-1 leading-relaxed">
-                          {renderMessageContent(msg.content, isUser)}
-                        </p>
-
-                        {msg.paymentDraft && (
-                          <PaymentDraftCard draft={msg.paymentDraft} />
-                        )}
-
-                        {/* Special interactive indicator for automatic handoff */}
-                        {msg.callOperator && (
-                          <div className="mt-2 p-1.5 bg-amber-50 border border-amber-200 rounded text-[9.5px] text-amber-900 flex items-start space-x-1">
-                            <Zap className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                            <div>
-                              <p className="font-bold leading-none">Инициирован gRPC handoff!</p>
-                              <p className="mt-0.5 opacity-90 leading-tight">
-                                Передали профиль компании ИНН и лог чата дежурному диспетчеру.
-                              </p>
+                              {/* Message text */}
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  width: '338px',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center',
+                                  color: '#FFF',
+                                  fontFeatureSettings: "'liga' off, 'clig' off",
+                                  fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                  fontSize: '15px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 400,
+                                  lineHeight: '24px'
+                                }}
+                              >
+                                {msg.content}
+                              </div>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+                        );
+                      } else {
+                        // Assistant/Bot message
+                        return (
+                          <div
+                            key={msg.id || index}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'flex-start',
+                              width: '100%'
+                            }}
+                          >
+                            {/* Rectangle 6557 - ответы чата */}
+                            <div
+                              style={{
+                                width: '450px',
+                                minHeight: '90px',
+                                borderRadius: '10px',
+                                background: '#E4E8EB',
+                                padding: '12px 14px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                boxSizing: 'border-box',
+                                gap: '6px'
+                              }}
+                            >
+                              {/* Header Row */}
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                {/* Label: СберГид */}
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '109px',
+                                    height: '24px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    aspectRatio: '109/75',
+                                    color: '#1F1F22',
+                                    fontFamily: 'Roboto, -apple-system, sans-serif',
+                                    fontSize: '20px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 500,
+                                    lineHeight: 'normal',
+                                    letterSpacing: '-0.25px'
+                                  }}
+                                >
+                                  СберГид
+                                </div>
 
-                {/* Operator live connection typing */}
-                {isOperatorActive && operatorMessages.map((msg) => (
-                  <div key={msg.id} className="flex justify-start items-start gap-2 animate-fade-in">
-                    <div className="p-1 rounded-lg flex-shrink-0 bg-gradient-to-tr from-amber-500 to-orange-600 text-white">
-                      <Users className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="max-w-[85%] rounded-xl p-3 text-[11px] shadow-xs bg-orange-50 border border-amber-200 text-slate-800 rounded-bl-none">
-                      <div className="flex items-center justify-between mb-1 border-b pb-1 border-amber-200">
-                        <span className="font-bold text-amber-950 text-[10.5px]">Александр (Живой Оператор)</span>
-                        <span className="text-[8.5px] text-amber-700 font-mono">{msg.timestamp}</span>
-                      </div>
-                      <p className="leading-relaxed text-slate-800">
-                        {msg.content}
-                      </p>
-                      <div className="mt-2 pt-1 border-t border-amber-200 text-[9px] text-amber-800 font-semibold flex items-center">
-                        <span className="inline-block w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-ping"></span>
-                        Канал переключен бесшовно на оператора.
-                      </div>
-                    </div>
+                                {/* Timestamp */}
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '176px',
+                                    height: '8px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#1F1F22',
+                                    fontFeatureSettings: "'liga' off, 'clig' off",
+                                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                    fontSize: '11px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 400,
+                                    lineHeight: '24px',
+                                    textAlign: 'right'
+                                  }}
+                                >
+                                  {msg.timestamp || "03.06.2026, 13:38:15"}
+                                </div>
+                              </div>
+
+                              {/* Underline - линия разделяющая шапку с сообщение у ответа бота */}
+                              <div
+                                style={{
+                                  width: '100%',
+                                  height: '1px',
+                                  background: '#1F1F22'
+                                }}
+                              />
+
+                              {/* Message Text */}
+                              <div
+                                style={{
+                                  width: '100%',
+                                  maxWidth: '410px',
+                                  color: '#1F1F22',
+                                  fontFeatureSettings: "'liga' off, 'clig' off",
+                                  fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                  fontSize: '15px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 400,
+                                  lineHeight: '24px'
+                                }}
+                              >
+                                {msg.content}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    });
+                  })()}
+
+                  <div ref={chatBottomRef} />
+                </div>
+
+                {/* Right part: Custom Scrollbar with track background + thumb */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: '10px',
+                    height: '100%',
+                    flexShrink: 0
+                  }}
+                  id="widget-custom-scrollbar-container"
+                >
+                  <div style={{ position: 'relative', width: '10px', height: '100%', pointerEvents: 'none' }}>
+                    {/* Background slider track */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="10"
+                      height="100%"
+                      viewBox="0 0 10 528"
+                      preserveAspectRatio="none"
+                      fill="none"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '10px',
+                        height: '100%',
+                        display: 'block'
+                      }}
+                    >
+                      <path d="M0 0H10V525C10 526.657 8.65685 528 7 528H0V0Z" fill="#E4E8EB" />
+                    </svg>
+
+                    {/* Rectangle 3.1 - слайдер */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: `calc(${widgetScrollProgress} * (100% - 96px))`,
+                        left: 0,
+                        width: '10px',
+                        height: '96px',
+                        borderRadius: '50px',
+                        background: '#B2B8BF',
+                        pointerEvents: 'none',
+                        transition: 'top 0.05s linear'
+                      }}
+                    />
                   </div>
-                ))}
-
-                {isTyping && (
-                  <div className="flex justify-start items-center space-x-1.5 text-[10.5px] text-slate-400">
-                    <div className="p-1 rounded bg-emerald-50 text-emerald-600">
-                      <Bot className="w-3.5 h-3.5 animate-spin" />
-                    </div>
-                    <span>СберИИ формулирует ответ на основе РСБУ и счетов...</span>
-                  </div>
-                )}
-
-                <div ref={chatBottomRef} />
-
-                {/* Self-contained glossary helper dialog inside the widget bottom */}
-                {selectedTerm && (
-                  <div className="absolute inset-x-3 bottom-2 bg-emerald-50 border-2 border-emerald-300 rounded-xl p-3 shadow-xl z-50 animate-fade-in text-slate-700">
-                    <div className="flex items-center justify-between border-b border-emerald-200 pb-1 mb-1.5">
-                      <span className="text-[9.5px] font-bold text-emerald-800 uppercase tracking-widest flex items-center">
-                        📚 Определение: {selectedTerm.word}
-                      </span>
-                      <button
-                        onClick={() => setSelectedTerm(null)}
-                        className="p-0.5 hover:bg-emerald-100 rounded text-slate-500 transition-colors"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                    <h5 className="font-bold text-[11px] text-slate-800">{selectedTerm.shortDescription}</h5>
-                    <p className="text-[10px] text-slate-600 mt-1 leading-normal">
-                      {selectedTerm.detailedDescription}
-                    </p>
-                  </div>
-                )}
-
+                </div>
               </div>
 
-              {/* Widget Footer Input Bar */}
-              <form onSubmit={handleSendMessage} className="p-2.5 border-t border-slate-100 flex items-center space-x-1 rounded-b-2xl bg-white" id="chat-widget-form">
+              {/* Content input bar at bottom */}
+              <form
+                onSubmit={handleSendMessage}
+                style={{
+                  display: 'flex',
+                  padding: '8px 12px',
+                  alignItems: 'center',
+                  gap: '10px',
+                  alignSelf: 'stretch',
+                  borderRadius: '8px',
+                  border: '1px solid #D0D7DD',
+                  background: '#FFF',
+                  margin: '12px 16px 16px 16px',
+                  boxSizing: 'border-box'
+                }}
+                id="sber-mini-chat-form"
+              >
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={
-                    isOperatorActive
-                      ? "Спросите оператора Александра..."
-                      : `Ваш вопрос как ${currentProfile.role === "director" ? "Владелец" : currentProfile.role === "accountant" ? "Бухгалтер" : "Сотрудник"}...`
-                  }
-                  className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none focus:bg-white transition-all text-slate-800"
+                  placeholder="Введите ваш запрос"
+                  style={{
+                    flex: '1 0 0',
+                    border: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    color: '#7D838A',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                    fontSize: '16px',
+                    fontStyle: 'normal',
+                    fontWeight: 400,
+                    lineHeight: '24px'
+                  }}
+                  className="placeholder:text-[#7D838A]"
                 />
-
-                <button
-                  type="button"
-                  onClick={handleTriggerManualHandoff}
-                  className="p-2 text-slate-400 hover:text-emerald-700 hover:bg-slate-50 rounded-lg transition-colors border border-transparent"
-                  title="Вызвать оператора вручную"
-                >
-                  <Users className="w-4 h-4" />
-                </button>
 
                 <button
                   type="submit"
                   disabled={isTyping || !inputValue.trim()}
-                  className="p-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-40 text-white rounded-lg transition-colors flex items-center justify-center cursor-pointer"
+                  style={{
+                    display: 'flex',
+                    width: '44px',
+                    height: '40px',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    aspectRatio: '11/10',
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: (isTyping || !inputValue.trim()) ? 'default' : 'pointer',
+                    opacity: (isTyping || !inputValue.trim()) ? 0.4 : 1,
+                    padding: 0
+                  }}
+                  className="active:scale-95 transition-all"
                 >
-                  <Send className="w-4 h-4" />
+                  <img
+                    src="/image5.png"
+                    alt="Send"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2321A19A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'></circle><line x1='21' y1='21' x2='16.65' y2='16.65'></line></svg>";
+                    }}
+                    style={{
+                      width: '44px',
+                      height: '40px',
+                      aspectRatio: '11/10',
+                      display: 'block',
+                      objectFit: 'contain'
+                    }}
+                  />
                 </button>
               </form>
-
             </div>
           )}
 
@@ -1477,230 +1693,758 @@ export default function App() {
       ) : (
         /* ================= ORIGINAL WORKSPACE DASHBOARD (FULL INTEGRATED PORTAL) ================= */
         <div className="flex-1 flex flex-col bg-slate-50" id="full-dashboard">
-          {/* Upper Sber-Style Brand Header with Back to Site Launcher */}
-          <header className="bg-[#0b5435] text-white py-3 px-5 shadow-sm flex items-center justify-between border-b border-emerald-700/80 sticky top-0 z-40" id="sber-header">
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center font-bold text-white shadow-inner shadow-black/25">
-                С
-              </div>
-              <div>
-                <div className="font-semibold text-[16px] tracking-wide flex items-center">
-                  СберБизнес
-                  <span className="ml-2 px-1.5 py-0.5 bg-emerald-500/30 border border-emerald-400/40 text-[10px] uppercase font-bold tracking-widest rounded text-emerald-200">
-                    ИИ-Ассистент
-                  </span>
+          {/* Upper Sber-Style Brand Header from Figma specification */}
+          <header className="w-full h-[60px] bg-white border-b border-[#D0D7DD] px-6 flex items-center justify-between sticky top-0 z-40 select-none" id="sber-header">
+            {/* Sber Corporate Logo Zone */}
+            <div className="flex items-center space-x-4">
+              <div className="flex flex-col items-start justify-center">
+                <img
+                  src="/Logotype.svg"
+                  className="h-[33px] w-[200px] object-contain select-none pointer-events-none"
+                  alt="СБЕР Бизнес"
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    width: '164px',
+                    height: '16px',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    color: '#107F8C',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                    fontSize: '8px',
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '32px',
+                    marginLeft: '37px'
+                  }}
+                  className="select-none pointer-events-none"
+                >
+                  Корпоративная экосистема веб-банка
                 </div>
-                <p className="text-[11px] text-emerald-300">Корпоративная экосистема веб-банка • Enterprise</p>
+              </div>
+              <div className="bg-gradient-to-r from-[#21A19A] to-[#107F8C] text-white text-[12px] font-semibold px-3.5 py-1.5 rounded-[8px] leading-none flex items-center justify-center">
+                ИИ-ассистент
               </div>
             </div>
 
-            {/* Back to Site Button */}
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => {
-                  setViewMode("website");
-                  setIsWidgetOpen(true);
-                }}
-                className="px-3.5 py-1.5 bg-emerald-850 hover:bg-emerald-800 text-white border border-emerald-700/60 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
-                title="Вернуться к промо-странице и открыть виджет"
-              >
-                <ChevronLeft className="w-4 h-4 text-emerald-300" />
-                <span>Вернуться на сайт</span>
-              </button>
+            {/* Right-side Action Controls */}
+            <div className="flex items-center space-x-5">
+              <div className="flex items-center space-x-4">
+                {/* Phone icon */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer relative" title="Позвонить в банк">
+                  <img src="/ic_srv_phone_default_20_w.svg" className="w-[20px] h-[20px]" alt="Phone" />
+                </button>
 
-              {/* User profile toggle in header */}
-              <div className="hidden sm:flex items-center bg-emerald-900/50 px-3 py-1 rounded-lg border border-emerald-700/50">
-                <UserCheck className="w-3.5 h-3.5 text-emerald-300 mr-2" />
-                <div className="text-right">
-                  <p className="text-[11px] text-emerald-300 leading-none">Бизнес-роль:</p>
-                  <span className="text-xs font-semibold text-white">{currentProfile.roleLabel}</span>
+                {/* Bell icon with "4" notification badge */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer relative" title="Уведомления">
+                  <img src="/ic_srv_bell_default_20_w.svg" className="w-[20px] h-[20px]" alt="Bell" />
+                  <span className="absolute -top-1.5 -right-1.5 w-[16px] h-[16px] bg-[#DB1237] text-white rounded-full text-[10px] font-bold flex items-center justify-center border border-white">
+                    4
+                  </span>
+                </button>
+
+                {/* Envelope icon with "4" messages badge */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer relative" title="Письма">
+                  <img src="/ic_srv_envelope_default_20_w.svg" className="w-[20px] h-[20px]" alt="Mail" />
+                  <span className="absolute -top-1.5 -right-1.5 w-[16px] h-[16px] bg-[#DB1237] text-white rounded-full text-[10px] font-bold flex items-center justify-center border border-white">
+                    4
+                  </span>
+                </button>
+
+                {/* Customer client login widget with user role rotating actions */}
+                <div
+                  onClick={() => {
+                    const nextRole = currentProfile.role === "director" ? "accountant" : "director";
+                    handleRoleChange(nextRole);
+                  }}
+                  className="flex items-center space-x-2 pl-2 py-1 cursor-pointer hover:opacity-90 active:scale-98 transition-all"
+                  title="Нажмите для циклической смены роли"
+                >
+                  <img
+                    src="/Customer logo.svg"
+                    className="w-[40px] h-[40px] rounded-full object-cover border border-[#D0D7DD]"
+                    alt="Customer Logo"
+                  />
+                  <span className="hidden md:inline text-[13px] font-semibold text-[#1F1F22] select-none font-sans">
+                    ЗАО «СЕРВИС ДЕСК»
+                  </span>
+                  <img
+                    src="/ic_srv_arrowdown_default_16_w.svg"
+                    className="w-[16px] h-[16px]"
+                    alt="Arrow down"
+                  />
                 </div>
+
+                {/* Question icon */}
+                <button className="p-1 hover:bg-slate-50 rounded-lg transition-all cursor-pointer" title="Помощь">
+                  <img src="/ic_srv_question_default_20_w.svg" className="w-[20px] h-[20px]" alt="Help" />
+                </button>
               </div>
             </div>
           </header>
+
+          {/* Back Navigation Bar under Header with Figma parameters */}
+          <div className="w-full flex" id="back-bar-container">
+            <div
+              onClick={() => {
+                setViewMode("website");
+                setIsWidgetOpen(true);
+              }}
+              style={{
+                display: 'flex',
+                width: '100%',
+                padding: '1px 32px',
+                alignItems: 'center',
+                background: 'linear-gradient(232deg, #21A19A 0%, #107F8C 100%)',
+                cursor: 'pointer',
+                color: '#FFF',
+                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                gap: '8px',
+                userSelect: 'none',
+                height: '40px',
+                minHeight: '40px'
+              }}
+              className="hover:opacity-90 active:opacity-95 transition-all select-none"
+              id="back-button-bar"
+            >
+              <ArrowLeft className="w-4 h-4 text-white" />
+              <span className="font-semibold text-xs leading-none">Назад</span>
+            </div>
+          </div>
 
           {/* SBERBUSINESS MAIN INTERACTIVE DASHBOARD SYSTEM */}
           <main className="flex-1 max-w-[1700px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6" id="dashboard-container">
 
               {/* LEFT COLUMN: Bank Navigation & Historical Session Manager */}
               <section className="lg:col-span-3 flex flex-col space-y-4" id="left-column">
-                {/* Bank Dashboard Role Toggle Panel */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                    Выберите бизнес-роль
-                  </h3>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button
-                      onClick={() => handleRoleChange("director")}
-                      className={`p-2.5 rounded-lg border transition-all text-left flex flex-col justify-between cursor-pointer ${
-                        currentProfile.role === "director"
-                          ? "border-emerald-600 bg-emerald-50/55 shadow-xs"
-                          : "border-slate-200 hover:bg-slate-50/80 hover:border-slate-300"
-                      }`}
-                      title="Владелец бизнеса / Генеральный директор (ООО 'ТехноПром')"
-                    >
-                      <span className={`text-[9px] uppercase font-black tracking-wider leading-none ${
-                        currentProfile.role === "director" ? "text-emerald-700" : "text-slate-400"
-                      }`}>
-                        Владелец
-                      </span>
-                      <span className="text-[10px] font-extrabold mt-1.5 leading-none">ООО 'Техно...'</span>
-                    </button>
 
-                    <button
-                      onClick={() => handleRoleChange("accountant")}
-                      className={`p-2.5 rounded-lg border transition-all text-left flex flex-col justify-between cursor-pointer ${
-                        currentProfile.role === "accountant"
-                          ? "border-emerald-600 bg-emerald-50/55 shadow-xs"
-                          : "border-slate-200 hover:bg-slate-50/80 hover:border-slate-300"
-                      }`}
-                      title="Главный бухгалтер компании (ИП Смирнова)"
+                {/* Bank Dashboard Role Toggle Panel (Exact match to Figma dimensions & styles) */}
+                <div
+                  id="sber-role-panel"
+                  style={{
+                    width: '327px',
+                    height: '295px',
+                    borderRadius: '20px',
+                    background: '#FFFFFF',
+                    boxShadow: '0 0 6px 2px rgba(86, 91, 98, 0.08)',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  {/* Top block: Avatar and Profile Details */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '93px',
+                        height: '93px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}
                     >
-                      <span className={`text-[9px] uppercase font-black tracking-wider leading-none ${
-                        currentProfile.role === "accountant" ? "text-emerald-700" : "text-slate-400"
-                      }`}>
-                        Бухгалтер
-                      </span>
-                      <span className="text-[10px] font-extrabold mt-1.5 leading-none">ИП Смир...</span>
-                    </button>
+                      {/* background Ellipse */}
+                      <img
+                        src="/Ellipse1720.svg"
+                        alt="Background Ellipse"
+                        style={{
+                          position: 'absolute',
+                          width: '93px',
+                          height: '93px',
+                          aspectRatio: '1/1',
+                          pointerEvents: 'none',
+                          zIndex: 0
+                        }}
+                      />
+                      {/* Avatar Image (always image6.png, never changes with role) */}
+                      <img
+                        src="/image6.png"
+                        alt="Avatar"
+                        style={{
+                          position: 'relative',
+                          width: '76px',
+                          height: '92px',
+                          aspectRatio: '19/23',
+                          objectFit: 'cover',
+                          zIndex: 1
+                        }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '168px',
+                          height: '24px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          color: '#565B62',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: 'SB Sans Interface, -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '18px',
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                          lineHeight: '32px'
+                        }}
+                      >
+                        {currentProfile.role === "director" ? "РУКОВОДИТЕЛЬ" : "ГЛ. БУХГАЛТЕР"}
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '168px',
+                          height: '32px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          color: '#1F1F22',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: 'SB Sans Interface, -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '21px',
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                          lineHeight: '32px'
+                        }}
+                      >
+                        {currentProfile.role === "director" ? "Директор" : "Бухгалтер"}
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '187px',
+                          height: '32px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          color: 'rgba(86, 91, 98, 0.70)',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: 'SB Sans Interface, -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '14px',
+                          fontStyle: 'normal',
+                          fontWeight: 400,
+                          lineHeight: '32px'
+                        }}
+                      >
+                        {currentProfile.role === "director" ? "ООО «ТехноПром»" : "ИП Смирнова О.Н."}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Company Meta Info Widget with Interactive Elements */}
-                  <div className="mt-4 bg-slate-50 p-3 rounded-lg border border-slate-200/60 text-xs space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Компания:</span>
-                      <span className="font-medium text-slate-700 text-right truncate max-w-[140px]">
-                        {currentProfile.companyName}
-                      </span>
+                  {/* infocomp: 296 x 160 */}
+                  <div
+                    id="infocomp"
+                    style={{
+                      width: '295px',
+                      height: '160px',
+                      borderRadius: '20px',
+                      background: 'rgba(86, 91, 98, 0.07)',
+                      boxShadow: '0 0 6px 2px rgba(0, 0, 0, 0.03)',
+                      padding: '14px 16px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
+                      {/* Left list block */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '100px',
+                          height: '87px',
+                          flexDirection: 'column',
+                          justifyContent: 'space-around',
+                          color: 'rgba(86, 91, 98, 0.70)',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: 'SB Sans Interface, -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '15px',
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <div>Компания:</div>
+                        <div>УНП:</div>
+                        <div>Пакет услуг:</div>
+                      </div>
+
+                      {/* Right list values block */}
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '160px',
+                          height: '86px',
+                          flexDirection: 'column',
+                          justifyContent: 'space-around',
+                          color: 'rgba(31, 31, 34, 0.90)',
+                          textAlign: 'right',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: 'SB Sans Interface, -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '14.5px',
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <div className="truncate text-right">
+                          {currentProfile.role === "director" ? "ООО «ТехноПром»" : "ИП Смирнова О.Н."}
+                        </div>
+                        <div style={{ fontFamily: 'monospace' }} className="text-right">
+                          {currentProfile.role === "director" ? "191234567" : "192345678"}
+                        </div>
+                        <div style={{ color: '#0F7085', fontWeight: 650 }} className="text-right">
+                          СберПремиум Бизнес
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">УНП:</span>
-                      <span className="font-mono text-slate-700">
-                        {currentProfile.role === "director" ? "191234567" : "192345678"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Пакет услуг:</span>
-                      <span className="font-semibold text-emerald-700">СберПремиум Бизнес</span>
-                    </div>
-                    <div className="pt-2 border-t border-slate-200 flex items-center text-[10px] text-slate-400">
-                      <span className="inline-block w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-ping"></span>
-                      Режим: Личный кабинет веб-банка
+
+                    {/* Divider and web bank mode at bottom */}
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ height: '1px', background: 'rgba(86, 91, 98, 0.15)', margin: '2px 0' }} />
+                      <div
+                        style={{
+                          display: 'flex',
+                          width: '247px',
+                          height: '24px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          color: 'rgba(86, 91, 98, 0.70)',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: 'SB Sans Interface, -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '10px',
+                          fontStyle: 'normal',
+                          fontWeight: 400,
+                        }}
+                      >
+                        Режим: личный кабинет веб-банка
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Persistence Sessions History */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex-1 flex flex-col min-h-[300px]">
-                  <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <MessageSquare className="w-4 h-4 text-slate-400" />
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        История обращений
-                      </h3>
-                    </div>
-                    <button
-                      onClick={() => handleCreateNewSession(currentProfile.role)}
-                      className="p-1 px-1.5 bg-emerald-55 hover:bg-emerald-100 border border-emerald-200/60 text-[10px] font-bold text-emerald-800 rounded flex items-center space-x-1 transition-colors cursor-pointer"
-                      title="Начать новую ИИ сессию"
+                <div
+                  id="appeal-history-card-6560"
+                  style={{
+                    width: '327px',
+                    height: '250px',
+                    borderRadius: '20px',
+                    background: '#FFF',
+                    boxShadow: '0 0 6px 2px rgba(0, 0, 0, 0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* Header: exact match of image10 icon and ИСТОРИЯ ОБРАЩЕНИЙ text */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', height: '64px', boxSizing: 'border-box', flexShrink: 0 }}>
+                    <img
+                      src="/image10.png"
+                      alt="History Icon"
+                      style={{
+                        width: '38px',
+                        height: '36px',
+                        aspectRatio: '19/18',
+                        display: 'block',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '256px',
+                        height: '35px',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        color: '#1F1F22',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontSize: '17px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '32px'
+                      }}
                     >
-                      <Sparkles className="w-3 h-3" />
-                      <span>+ Новый</span>
-                    </button>
+                      <span>ИСТОРИЯ ОБРАЩЕНИЙ</span>
+                      <button
+                        onClick={() => handleCreateNewSession(currentProfile.role)}
+                        style={{
+                          display: 'flex',
+                          width: '23px',
+                          height: '27px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          color: '#095A75',
+                          fontFamily: '"SB Sans Interface", sans-serif',
+                          fontSize: '48px',
+                          fontStyle: 'normal',
+                          fontWeight: 300,
+                          lineHeight: '32px',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 0
+                        }}
+                        className="hover:opacity-80 transition-all"
+                        title="Начать новую ИИ сессию"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Sessions List */}
-                  <div className="p-2 space-y-1 overflow-y-auto flex-1 max-h-[400px]">
-                    {sessions.map((session) => {
-                      const isSelected = session.id === currentSessionId;
-                      return (
-                        <button
-                          key={session.id}
-                          onClick={() => {
-                            setCurrentSessionId(session.id);
-                            setCrmPayload(null);
-                            setIsOperatorActive(false);
-                            const prof = bankProfiles.find(p => p.role === session.role);
-                            if (prof) {
-                              setCurrentProfile(prof);
-                            }
-                          }}
-                          className={`w-full text-left p-3 rounded-lg transition-all border flex items-start space-x-2.5 cursor-pointer ${
-                            isSelected
-                              ? "bg-slate-100 border-slate-400 shadow-sm"
-                              : "bg-white border-transparent hover:bg-slate-50 hover:border-slate-100"
-                          }`}
-                        >
-                          <div className={`mt-1 p-1 rounded ${
-                            session.role === "director" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
-                          }`}>
-                            <Bot className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold text-slate-400 capitalize">
-                                {session.role === "director" ? "Директор" : "Бухгалтер"}
-                              </span>
-                              <span className="text-[9px] text-slate-400">{session.date}</span>
+                  {/* Sessions List Container with Custom slider track */}
+                  <div style={{ display: 'flex', flex: 1, overflow: 'hidden', padding: '12px 14px 12px 16px', boxSizing: 'border-box', gap: '8px' }}>
+                    <div
+                      onScroll={(e) => {
+                        const target = e.currentTarget;
+                        const scrollHeight = target.scrollHeight;
+                        const clientHeight = target.clientHeight;
+                        const scrollTop = target.scrollTop;
+                        const maxScroll = scrollHeight - clientHeight;
+                        if (maxScroll > 0) {
+                          setHistoryScrollProgress(scrollTop / maxScroll);
+                        } else {
+                          setHistoryScrollProgress(0);
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        overflowY: 'auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none'
+                      }}
+                      className="[&::-webkit-scrollbar]:hidden"
+                    >
+                      {sessions.map((session) => {
+                        const isSelected = session.id === currentSessionId;
+                        return (
+                          <button
+                            key={session.id}
+                            type="button"
+                            onClick={() => {
+                              setCurrentSessionId(session.id);
+                              setCrmPayload(null);
+                              setIsOperatorActive(false);
+                              const prof = bankProfiles.find(p => p.role === session.role);
+                              if (prof) {
+                                setCurrentProfile(prof);
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              background: 'transparent',
+                              border: 'none',
+                              display: 'flex',
+                              alignItems: 'flex-start',
+                              gap: '10px',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              padding: '6px 8px',
+                              borderRadius: '10px',
+                              backgroundColor: isSelected ? 'rgba(186, 212, 225, 0.25)' : 'transparent',
+                              transition: 'background-color 0.1s ease',
+                            }}
+                            className="hover:bg-slate-50"
+                          >
+                            {/* Grey circle inside each chat: Ellipse1723.svg */}
+                            <div style={{ flexShrink: 0, marginTop: '3px' }}>
+                              <img
+                                src="/Ellipse1723.svg"
+                                alt="Status Indicator"
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  aspectRatio: '1/1',
+                                  display: 'block'
+                                }}
+                              />
                             </div>
-                            <p className="text-xs font-semibold text-slate-700 truncate mt-0.5">
-                              {session.title}
-                            </p>
-                            <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                              {session.messages.length > 0
-                                ? `${session.messages.length} сообщений`
-                                : "Новый чистый диалог..."}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
 
-                  <div className="p-3 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-400">
-                    База данных: <span className="font-semibold text-slate-600">PostgreSQL JSON Store</span> • Имитация сессий с авто-сохранением.
+                            {/* Inner session details */}
+                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                              {/* Title of session & Date */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '179px',
+                                    height: '15px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#1F1F22',
+                                    fontFeatureSettings: "'liga' off, 'clig' off",
+                                    fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                    fontSize: '12px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 600,
+                                    lineHeight: '32px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                  }}
+                                >
+                                  {session.title}
+                                </div>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '57px',
+                                    height: '14px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#565B62',
+                                    fontFeatureSettings: "'liga' off, 'clig' off",
+                                    fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                    fontSize: '10px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 400,
+                                    lineHeight: '32px',
+                                    textAlign: 'right'
+                                  }}
+                                >
+                                  {session.date}
+                                </div>
+                              </div>
+
+                              {/* Dynamic Count of messages in the log */}
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  width: '200px',
+                                  height: '27px',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center',
+                                  color: '#565B62',
+                                  fontFeatureSettings: "'liga' off, 'clig' off",
+                                  fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                  fontSize: '10px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 400,
+                                  lineHeight: '32px'
+                                }}
+                              >
+                                {session.messages.length} сообщений в логе
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Scrollbar with track (slider.svg) and thumb (Rectangle 3.1 overlayed) */}
+                    <div style={{ position: 'relative', width: '10px', height: '180px', flexShrink: 0, alignSelf: 'center' }}>
+                      <img
+                        src="/slider.svg"
+                        alt="Scroll Track"
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '10px',
+                          height: '180px',
+                          opacity: 0.8,
+                          pointerEvents: 'none'
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: `${Math.round(historyScrollProgress * 84)}px`,
+                          left: 0,
+                          width: '10px',
+                          height: '96px',
+                          borderRadius: '50px',
+                          background: '#B2B8BF',
+                          pointerEvents: 'none',
+                          transition: 'top 0.05s linear'
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Reminders Management Widget */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mt-1 flex flex-col">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div className="flex items-center space-x-2">
-                      <Bell className="w-4 h-4 text-emerald-600" />
-                      <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                        Напоминания ({reminders.filter(r => r.isActive).length})
-                      </h3>
-                    </div>
-                    <button
-                      onClick={() => setIsAddingReminder(!isAddingReminder)}
-                      className="p-1 text-emerald-700 hover:bg-emerald-50 rounded transition-colors cursor-pointer"
-                      title="Добавить напоминание"
+                <div
+                  id="sber-reminders-card"
+                  style={{
+                    width: '327px',
+                    height: '268px',
+                    borderRadius: '20px',
+                    background: '#FFF',
+                    boxShadow: '0 0 6px 2px rgba(0, 0, 0, 0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box',
+                    padding: '16px 20px',
+                    position: 'relative'
+                  }}
+                >
+                  {/* Header: exact match of image17 icon and НАПОМИНАНИЯ text, plus add button */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', height: '64px', boxSizing: 'border-box', flexShrink: 0 }}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#095A75"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{
+                        width: '38px',
+                        height: '36px',
+                        display: 'block',
+                        flexShrink: 0
+                      }}
                     >
-                      <Plus className="w-4.5 h-4.5" />
-                    </button>
+                      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '256px',
+                        height: '35px',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        color: '#1F1F22',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontSize: '17px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '32px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        НАПОМИНАНИЯ ({reminders.filter(r => r.isActive).length})
+                      </div>
+
+                      <button
+                        onClick={() => setIsAddingReminder(!isAddingReminder)}
+                        style={{
+                          display: 'flex',
+                          width: '23px',
+                          height: '27px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          color: '#095A75',
+                          fontFamily: '"SB Sans Interface", sans-serif',
+                          fontSize: '48px',
+                          fontStyle: 'normal',
+                          fontWeight: 300,
+                          lineHeight: '32px',
+                          border: 'none',
+                          background: 'none',
+                          cursor: 'pointer',
+                          padding: 0,
+                          outline: 'none',
+                          userSelect: 'none'
+                        }}
+                        title="Добавить напоминание"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Filters */}
-                  <div className="py-2 bg-slate-50 px-2 rounded-lg my-2 flex justify-between items-center text-[10px]">
-                    <span className="text-slate-400 font-bold uppercase tracking-wider">Фильтр:</span>
-                    <div className="flex bg-slate-200/60 p-0.5 rounded">
+                  {/* Filters Component (infocomp) */}
+                  <div
+                    style={{
+                      width: '287px',
+                      height: '30px',
+                      background: 'rgba(86, 91, 98, 0.07)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 10px',
+                      boxSizing: 'border-box',
+                      justifyContent: 'space-between',
+                      marginBottom: '10px',
+                      flexShrink: 0
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '65px',
+                        height: '31px',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        color: '#565B62',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontSize: '13px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '15px'
+                      }}
+                    >
+                      ФИЛЬТР:
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <button
                         onClick={() => setRemindersFilter('current')}
-                        className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
-                          remindersFilter === 'current'
-                            ? "bg-white text-slate-700 shadow-xs"
-                            : "text-slate-500 hover:text-slate-800"
-                        }`}
+                        style={{
+                          display: 'flex',
+                          padding: '2px 8px',
+                          height: '17px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          color: remindersFilter === 'current' ? '#095A75' : '#313C46',
+                          background: remindersFilter === 'current' ? 'rgba(9, 90, 117, 0.1)' : 'transparent',
+                          borderRadius: '4px',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '8px',
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                          lineHeight: '15px',
+                          cursor: 'pointer',
+                          border: 'none',
+                          outline: 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap'
+                        }}
                       >
                         Текущая роль
                       </button>
                       <button
                         onClick={() => setRemindersFilter('all')}
-                        className={`px-2 py-0.5 rounded text-[9px] font-bold transition-all cursor-pointer ${
-                          remindersFilter === 'all'
-                            ? "bg-white text-slate-700 shadow-xs"
-                            : "text-slate-500 hover:text-slate-800"
-                        }`}
+                        style={{
+                          display: 'flex',
+                          padding: '2px 8px',
+                          height: '17px',
+                          flexDirection: 'column',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          color: remindersFilter === 'all' ? '#095A75' : '#313C46',
+                          background: remindersFilter === 'all' ? 'rgba(9, 90, 117, 0.1)' : 'transparent',
+                          borderRadius: '4px',
+                          fontFeatureSettings: "'liga' off, 'clig' off",
+                          fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: '8px',
+                          fontStyle: 'normal',
+                          fontWeight: 600,
+                          lineHeight: '15px',
+                          cursor: 'pointer',
+                          border: 'none',
+                          outline: 'none',
+                          transition: 'all 0.15s ease',
+                          whiteSpace: 'nowrap'
+                        }}
                       >
                         Все роли
                       </button>
@@ -1709,24 +2453,55 @@ export default function App() {
 
                   {/* Manual Creation Form */}
                   {isAddingReminder && (
-                    <form onSubmit={handleCreateReminder} className="p-3 bg-slate-50/50 border border-slate-150 rounded-lg mb-2 space-y-2">
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 block mb-1">ЧТО НАПОМНИТЬ:</label>
+                    <form
+                      onSubmit={handleCreateReminder}
+                      style={{
+                        background: 'rgba(86, 91, 98, 0.04)',
+                        border: '1px solid rgba(86, 91, 98, 0.15)',
+                        borderRadius: '12px',
+                        padding: '8px 12px',
+                        marginBottom: '10px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        flexShrink: 0
+                      }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <label style={{ fontSize: '8px', fontWeight: 'bold', color: '#565B62', marginBottom: '2px' }}>ЧТО НАПОМНИТЬ:</label>
                         <input
                           type="text"
                           required
                           value={newReminderText}
                           onChange={(e) => setNewReminderText(e.target.value)}
-                          placeholder="Например: Заплатить налог на прибыль"
-                          className="w-full p-2 text-xs bg-white border border-slate-200 rounded focus:border-emerald-500 focus:outline-hidden"
+                          placeholder="Текст напоминания..."
+                          style={{
+                            width: '100%',
+                            padding: '4px 8px',
+                            fontSize: '10px',
+                            background: '#FFF',
+                            border: '1px solid #D1D5DB',
+                            borderRadius: '6px',
+                            outline: 'none',
+                            boxSizing: 'border-box'
+                          }}
                         />
                       </div>
-                      <div>
-                        <label className="text-[9px] font-bold text-slate-400 block mb-1">ПЕРИОДИЧНОСТЬ:</label>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <label style={{ fontSize: '8px', fontWeight: 'bold', color: '#565B62', marginBottom: '2px' }}>ПЕРИОДИЧНОСТЬ:</label>
                         <select
                           value={newReminderFrequency}
                           onChange={(e) => setNewReminderFrequency(e.target.value)}
-                          className="w-full p-1.5 text-xs bg-white border border-slate-200 rounded focus:border-emerald-500 focus:outline-hidden"
+                          style={{
+                            width: '100%',
+                            padding: '4px 8px',
+                            fontSize: '10px',
+                            background: '#FFF',
+                            border: '1px solid #D1D5DB',
+                            borderRadius: '6px',
+                            outline: 'none',
+                            boxSizing: 'border-box'
+                          }}
                         >
                           <option value="Каждый первый понедельник">Каждый первый понедельник</option>
                           <option value="Каждый понедельник">Каждый понедельник</option>
@@ -1736,17 +2511,32 @@ export default function App() {
                           <option value="Ежемесячно">Ежемесячно</option>
                         </select>
                       </div>
-                      <div className="flex space-x-1.5 justify-end pt-1">
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'end' }}>
                         <button
                           type="button"
                           onClick={() => setIsAddingReminder(false)}
-                          className="px-2 py-1 text-[10px] text-slate-500 font-bold hover:bg-slate-100 rounded"
+                          style={{
+                            fontSize: '9px',
+                            color: '#565B62',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer'
+                          }}
                         >
                           Отмена
                         </button>
                         <button
                           type="submit"
-                          className="px-2.5 py-1 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded shadow-xs cursor-pointer"
+                          style={{
+                            fontSize: '9px',
+                            background: '#095A75',
+                            color: '#FFF',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '2px 8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold'
+                          }}
                         >
                           Добавить
                         </button>
@@ -1754,11 +2544,22 @@ export default function App() {
                     </form>
                   )}
 
-                  {/* List of Reminders */}
-                  <div className="space-y-1.5 overflow-y-auto max-h-[300px] pr-0.5">
+                  {/* List of Reminders (with custom infocomp layout per item) */}
+                  <div
+                    style={{
+                      flex: 1,
+                      overflowY: 'auto',
+                      overflowX: 'hidden',
+                      paddingRight: '4px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}
+                    className="scrollbar-thin"
+                  >
                     {reminders.filter(rem => remindersFilter === 'all' || rem.role === currentProfile.role).length === 0 ? (
-                      <div className="text-center py-6 text-slate-400 text-[11px] bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
-                        <Clock className="w-5 h-5 mx-auto mb-1 text-slate-300 stroke-1" />
+                      <div style={{ textAlign: 'center', padding: '24px 0', color: '#9CA3AF', fontSize: '11px', background: 'rgba(86, 91, 98, 0.02)', borderRadius: '10px', border: '1px dashed #E5E7EB' }}>
+                        <Clock style={{ width: '20px', height: '20px', margin: '0 auto 4px auto', color: '#D1D5DB' }} />
                         <span>Напоминаний нет.<br />Напишите в ИИ-чат или создайте кнопкой <b>+</b></span>
                       </div>
                     ) : (
@@ -1767,55 +2568,180 @@ export default function App() {
                         .map((rem) => (
                           <div
                             key={rem.id}
-                            className={`p-2.5 rounded-lg border text-xs transition-all flex items-start space-x-2 ${
-                              rem.isActive
-                                ? "bg-slate-50/80 border-slate-200/80 hover:bg-slate-100/60"
-                                : "bg-white border-transparent opacity-60"
-                            }`}
+                            style={{
+                              width: '100%',
+                              height: '70px',
+                              background: 'rgba(86, 91, 98, 0.07)',
+                              filter: 'drop-shadow(0px 0px 6px rgba(0, 0, 0, 0.25))',
+                              borderRadius: '10px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              boxSizing: 'border-box',
+                              padding: '6px 10px',
+                              position: 'relative',
+                              gap: '2px',
+                              flexShrink: 0,
+                              opacity: rem.isActive ? 1 : 0.6
+                            }}
                           >
-                            {/* Toggle Switch */}
-                            <button
-                              onClick={() => handleToggleReminder(rem.id, rem.isActive)}
-                              className={`mt-0.5 flex-none w-6 h-3.5 rounded-full p-0.5 transition-colors cursor-pointer relative ${
-                                rem.isActive ? "bg-emerald-500" : "bg-slate-300"
-                              }`}
-                              title={rem.isActive ? "Выключить" : "Включить"}
-                            >
+                            {/* Top Row: Role, DateTime, Delete Icon */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '15px' }}>
                               <div
-                                className={`w-2.5 h-2.5 bg-white rounded-full shadow-xs transition-transform transform ${
-                                  rem.isActive ? "translate-x-2.5" : "translate-x-0"
-                                }`}
-                              />
-                            </button>
-
-                            <div className="flex-1 min-w-0 pl-1">
-                              <div className="flex items-center justify-between gap-1 leading-none">
-                                <span className={`text-[8px] uppercase font-black tracking-wider ${
-                                  rem.role === 'director' ? "text-purple-600" : "text-blue-600"
-                                }`}>
-                                  {rem.role === 'director' ? "Директор" : "Бухгалтер"}
-                                </span>
-                                <span className="text-[8px] text-slate-400 font-mono">{rem.createdAt}</span>
+                                style={{
+                                  display: 'flex',
+                                  width: '65px',
+                                  height: '15px',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center',
+                                  color: rem.role === 'director' ? '#095A75' : '#565B62',
+                                  fontFeatureSettings: "'liga' off, 'clig' off",
+                                  fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                  fontSize: '13px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 600,
+                                  lineHeight: '15px'
+                                }}
+                              >
+                                {rem.role === 'director' ? 'Директор' : 'Бухгалтер'}
                               </div>
-                              <p className={`font-semibold text-slate-700 mt-1 leading-tight text-[11px] break-words ${
-                                !rem.isActive && "line-through text-slate-400 font-normal"
-                              }`}>
-                                {rem.text}
-                              </p>
-                              <div className="flex items-center space-x-1 mt-1 text-[9px] text-slate-500">
-                                <Clock className="w-3 h-3 text-emerald-600 flex-none" />
-                                <span className="truncate italic">{rem.frequency}</span>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '100px',
+                                    height: '15px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#565B62',
+                                    fontFeatureSettings: "'liga' off, 'clig' off",
+                                    fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                    fontSize: '10px',
+                                    fontStyle: 'normal',
+                                    fontWeight: 400,
+                                    lineHeight: '15px',
+                                    textAlign: 'right'
+                                  }}
+                                >
+                                  {rem.createdAt || '13.06.2026, 12:00'}
+                                </div>
+
+                                <button
+                                  onClick={() => handleDeleteReminder(rem.id)}
+                                  style={{
+                                    border: 'none',
+                                    background: 'none',
+                                    cursor: 'pointer',
+                                    padding: '0 2px',
+                                    outline: 'none',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                  }}
+                                  title="Удалить"
+                                >
+                                  <img
+                                    src="/image18.png"
+                                    alt="Delete Icon"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23565b62' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='3 6 5 6 21 6'/><path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/></svg>";
+                                    }}
+                                    style={{
+                                      width: '14px',
+                                      height: '14px',
+                                      objectFit: 'contain'
+                                    }}
+                                  />
+                                </button>
                               </div>
                             </div>
 
-                            {/* Delete Button */}
-                            <button
-                              onClick={() => handleDeleteReminder(rem.id)}
-                              className="text-slate-400 hover:text-rose-600 p-1 rounded hover:bg-rose-50 transition-colors cursor-pointer"
-                              title="Удалить"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            {/* Middle Row: Text description */}
+                            <div style={{ display: 'flex', alignItems: 'center', height: '26px' }}>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  width: '260px',
+                                  height: '24px',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center',
+                                  color: '#313C46',
+                                  fontFeatureSettings: "'liga' off, 'clig' off",
+                                  fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                  fontSize: '11px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 600,
+                                  lineHeight: '12px',
+                                  overflow: 'hidden',
+                                  textAlign: 'left'
+                                }}
+                                title={rem.text}
+                              >
+                                <div style={{
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  textDecoration: rem.isActive ? 'none' : 'line-through'
+                                }}>
+                                  {rem.text}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Bottom Row: Toggle (Switch), Time value */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '20px' }}>
+                              <button
+                                onClick={() => handleToggleReminder(rem.id, rem.isActive)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center'
+                                }}
+                              >
+                                <img
+                                  src={rem.isActive ? "/_ic_toggle_active.svg" : "/_ic_toggle_inactive.svg"}
+                                  alt="Toggle"
+                                  onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = rem.isActive
+                                      ? "data:image/svg+xml;utf8,<svg width='30' height='16' viewBox='0 0 34 20' fill='none' xmlns='http://www.w3.org/2000/svg'><rect width='34' height='20' rx='10' fill='%23095A75'/><circle cx='24' cy='10' r='8' fill='white'/></svg>"
+                                      : "data:image/svg+xml;utf8,<svg width='30' height='16' viewBox='0 0 34 20' fill='none' xmlns='http://www.w3.org/2000/svg'><rect width='34' height='20' rx='10' fill='%23B2B8BF'/><circle cx='10' cy='10' r='8' fill='white'/></svg>";
+                                  }}
+                                  style={{
+                                    width: '30px',
+                                    height: '16px',
+                                    cursor: 'pointer'
+                                  }}
+                                />
+                              </button>
+
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  width: '180px',
+                                  height: '15px',
+                                  flexDirection: 'column',
+                                  justifyContent: 'center',
+                                  color: '#565B62',
+                                  fontFeatureSettings: "'liga' off, 'clig' off",
+                                  fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                                  fontSize: '10px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 400,
+                                  lineHeight: '15px',
+                                  textAlign: 'right',
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis'
+                                }}
+                              >
+                                {rem.frequency}
+                              </div>
+                            </div>
                           </div>
                         ))
                     )}
@@ -1827,294 +2753,979 @@ export default function App() {
               <section className="lg:col-span-6 flex flex-col space-y-6" id="middle-column">
 
                 {/* Simulated Live Accounts Statistics */}
-                <div className="bg-gradient-to-r from-emerald-800 to-teal-900 text-white rounded-xl shadow-md p-5 relative overflow-hidden">
-                  <div className="absolute right-0 top-0 translate-x-12 -translate-y-12 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="w-full overflow-hidden select-none flex justify-center" id="accounts-card-wrapper">
+                  {(() => {
+                    const isDir = currentProfile.role === "director";
+                    const displayCompanyName = isDir ? "ООО «ТЕХНОПРОМ»" : "ИП СМИРНОВА О.Н.";
+                    const displayMetaInfo = isDir ? "ИНН 7800921000 · КПП 7701" : "УНП 192345678";
 
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-300 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-800">
-                      {currentProfile.companyName}
-                    </span>
-                    <span className="text-[11px] text-emerald-200 font-mono">
-                      УНП {currentProfile.role === "director" ? "191234567" : "192345678"}
-                    </span>
-                  </div>
+                    const col1Title = isDir ? "Общий остаток на счетах" : "Консультационный лимит УСН";
+                    const col1Value = isDir ? "14 664.50 Б" : "Расчет готов";
+                    const col1Sub = isDir ? "Ликвидность стабильна" : "НСБУ сведен";
 
-                  {currentProfile.role === "director" ? (
-                    <div className="grid grid-cols-3 gap-4" id="director-fin">
-                      <div>
-                        <p className="text-[10px] text-emerald-200 leading-none">Общий остаток на счетах</p>
-                        <p className="text-xl md:text-2xl font-bold mt-1 tracking-tight">14 240 000.50 BYN</p>
-                        <p className="text-[10px] text-emerald-300 mt-1 flex items-center">
-                          <span className="inline-block w-1.5 h-1.5 bg-emerald-400 rounded-full mr-1"></span>
-                          Ликвидность стабильна
-                        </p>
+                    const col2Title = isDir ? "Одобренный овердрафт" : "НДС к вычету / уплате";
+                    const col2Value = isDir ? "5 000 000 Б" : "12 000 Б";
+                    const col2Sub = isDir ? "Овердрафт подключен" : "Сумма снижена";
+
+                    const col3Title = isDir ? "В обработке банком" : "Оплата взносов";
+                    const col3Value = isDir ? "1 000 050 Б" : "Выполнено";
+                    const col3Sub = isDir ? "Ожидает акцепта" : "Оплачено за квартал";
+
+                    return (
+                      <div
+                        id="sber-accounts-card"
+                        style={{
+                          width: '772px',
+                          height: '200px',
+                          borderRadius: '25px',
+                          border: '1.5px solid #107F8C',
+                          background: 'linear-gradient(232deg, rgba(33, 161, 154, 0.90) 0%, rgba(16, 127, 140, 0.90) 100%)',
+                          boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          padding: '16px 16px 16px 137px',
+                          fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                          color: '#FFF',
+                          userSelect: 'none'
+                        }}
+                      >
+                        {/* Left Mascot Image */}
+                        <div
+                          id="mascot-image-16"
+                          style={{
+                            position: 'absolute',
+                            left: '0px',
+                            top: '-1px',
+                            width: '123px',
+                            height: '202px',
+                            aspectRatio: '123/202',
+                            borderRadius: '27px',
+                            backgroundImage: "url('/image16.png')",
+                            backgroundPosition: "center",
+                            backgroundSize: "contain",
+                            backgroundRepeat: "no-repeat",
+                            backgroundColor: "transparent",
+                            flexShrink: 0
+                          }}
+                        />
+
+                        {/* Top Line */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            width: '619px',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                          id="card-top-header"
+                        >
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '320px',
+                              height: '32px',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              color: 'rgba(255, 255, 255, 0.90)',
+                              textAlign: 'left',
+                              fontFeatureSettings: "'liga' off, 'clig' off",
+                              fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                              fontSize: '20px',
+                              fontStyle: 'normal',
+                              fontWeight: 600,
+                              lineHeight: '32px'
+                            }}
+                            id="card-company-name"
+                          >
+                            {displayCompanyName}
+                          </div>
+
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '260px',
+                              height: '32px',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              color: '#FFF',
+                              textAlign: 'right',
+                              fontFeatureSettings: "'liga' off, 'clig' off",
+                              fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                              fontSize: '13px',
+                              fontStyle: 'normal',
+                              fontWeight: 400,
+                              lineHeight: '32px'
+                            }}
+                            id="card-inn-kpp"
+                          >
+                            {displayMetaInfo}
+                          </div>
+                        </div>
+
+                        {/* Stats Columns Row */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            width: '619px',
+                            justifyContent: 'space-between',
+                            alignItems: 'stretch',
+                            marginTop: '8px'
+                          }}
+                          id="card-stats-row"
+                        >
+                          {/* Column 1 */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '205px',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              textAlign: 'center'
+                            }}
+                            id="card-col-1"
+                          >
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '205px',
+                                height: '32px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                textAlign: 'center',
+                                background: 'rgba(255, 255, 255, 0.12)',
+                                borderRadius: '8px',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '12px',
+                                fontStyle: 'normal',
+                                fontWeight: 400,
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {col1Title}
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '175px',
+                                height: '43px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '24px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: 'normal'
+                              }}
+                              className="mt-1"
+                            >
+                              {col1Value}
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '205px',
+                                height: '32px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '12.5px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {col1Sub}
+                            </div>
+                          </div>
+
+                          {/* Divider 1 */}
+                          <div className="w-[1px] bg-white/20 my-1 self-stretch" id="card-div-1" />
+
+                          {/* Column 2 */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '205px',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              textAlign: 'center'
+                            }}
+                            id="card-col-2"
+                          >
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '205px',
+                                height: '32px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                textAlign: 'center',
+                                background: 'rgba(255, 255, 255, 0.12)',
+                                borderRadius: '8px',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '12px',
+                                fontStyle: 'normal',
+                                fontWeight: 400,
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {col2Title}
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '175px',
+                                height: '43px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '24px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: 'normal'
+                              }}
+                              className="mt-1"
+                            >
+                              {col2Value}
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '205px',
+                                height: '32px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '12.5px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {col2Sub}
+                            </div>
+                          </div>
+
+                          {/* Divider 2 */}
+                          <div className="w-[1px] bg-white/20 my-1 self-stretch" id="card-div-2" />
+
+                          {/* Column 3 */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '205px',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              textAlign: 'center'
+                            }}
+                            id="card-col-3"
+                          >
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '205px',
+                                height: '32px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                textAlign: 'center',
+                                background: 'rgba(255, 255, 255, 0.12)',
+                                borderRadius: '8px',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '12px',
+                                fontStyle: 'normal',
+                                fontWeight: 400,
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {col3Title}
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '175px',
+                                height: '43px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: '#FFF',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '24px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: 'normal'
+                              }}
+                              className="mt-1"
+                            >
+                              {col3Value}
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '205px',
+                                height: '32px',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: (isDir && col3Sub === "Ожидает акцепта") ? '#FFB13B' : '#FFF',
+                                textShadow: (isDir && col3Sub === "Ожидает акцепта") ? '0 3px 5px rgba(0, 0, 0, 0.25)' : 'none',
+                                fontFeatureSettings: "'liga' off, 'clig' off",
+                                fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                fontSize: '12.5px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: 'normal'
+                              }}
+                            >
+                              {col3Sub}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="border-l border-white/10 pl-4">
-                        <p className="text-[10px] text-emerald-200 leading-none">Одобренный овердрафт</p>
-                        <p className="text-xl md:text-2xl font-bold mt-1 tracking-tight text-emerald-300">150 000 BYN</p>
-                        <p className="text-[10px] text-emerald-200 mt-1">Овердрафт подсоединен</p>
-                      </div>
-                      <div className="border-l border-white/10 pl-4">
-                        <p className="text-[10px] text-emerald-200 leading-none">В обработке банком</p>
-                        <p className="text-lg md:text-xl font-bold mt-1 tracking-tight">35 000.00 BYN</p>
-                        <p className="text-[10px] text-amber-300 mt-1 font-semibold">Ожидает акцепта</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-3 gap-4" id="accountant-fin">
-                      <div>
-                        <p className="text-[10px] text-emerald-200 leading-none">Консультационный лимит УСН</p>
-                        <p className="text-xl font-bold mt-1 tracking-tight">Расчет готов</p>
-                        <p className="text-[10px] text-emerald-300 mt-1">НСБУ сведен</p>
-                      </div>
-                      <div className="border-l border-white/10 pl-4">
-                        <p className="text-[10px] text-emerald-200 leading-none">НДС к вычету / уплате</p>
-                        <p className="text-xl font-bold mt-1 tracking-tight text-emerald-300">12 000 BYN</p>
-                        <p className="text-[10px] text-lime-300 mt-1">Сумма снижена</p>
-                      </div>
-                      <div className="border-l border-white/10 pl-4">
-                        <p className="text-[10px] text-emerald-200 leading-none">Оплата взносов</p>
-                        <p className="text-xl font-bold mt-1 tracking-tight">Выполнено</p>
-                        <p className="text-[10px] text-emerald-200 mt-1">Оплачено за квартал</p>
-                      </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </div>
 
                 {/* SberBusiness Live AI Assistant Chat Box */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col flex-1 min-h-[480px]">
-
+                <div
+                  id="chat-box-6557"
+                  style={{
+                    width: '772px',
+                    height: '592px',
+                    borderRadius: '8px',
+                    background: '#FFF',
+                    boxShadow: '0 1px 3px 0 rgba(31, 31, 34, 0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box',
+                    overflow: 'hidden'
+                  }}
+                >
                   {/* Box Header */}
-                  <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50 rounded-t-xl">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center border border-emerald-100">
-                        <Bot className="w-5 h-5 text-emerald-600" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-slate-800 text-sm flex items-center">
-                          СберБизнес ИИ-Консультант
-                          <span className="ml-2 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        </div>
-                        <p className="text-[11px] text-slate-400">
-                          Контекст: {currentProfile.companyName} • {currentProfile.roleLabel}
-                        </p>
-                      </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', flexShrink: 0 }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        height: '32px',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        color: '#1F1F22',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                        fontSize: '21px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '32px',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      ИИ-ассистент СберГид
                     </div>
 
-                    <div className="flex items-center space-x-1.5">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <button
                         onClick={handleTriggerManualHandoff}
-                        className="p-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
-                        title="Переключить на оператора вручную"
+                        style={{
+                          display: 'flex',
+                          width: '175px',
+                          height: '33px',
+                          padding: '0 12px',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          borderRadius: '8px',
+                          background: '#FFD9A0',
+                          boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#1F1F22',
+                          fontFamily: '"SB Sans Interface", sans-serif',
+                          fontSize: '13px',
+                          fontWeight: 600
+                        }}
+                        className="hover:opacity-90 active:scale-98 transition-all"
                       >
                         <Users className="w-3.5 h-3.5" />
                         <span>Позвать оператора</span>
                       </button>
 
+                      {/* ic_srv_close_default_20_w.svg - крестик для закрытия */}
                       <button
                         onClick={() => {
                           setViewMode("website");
                           setIsWidgetOpen(true);
                         }}
-                        className="p-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-bold flex items-center space-x-1 transition-colors cursor-pointer"
-                        title="Вернуться к компактному виджету на сайте"
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: '20px',
+                          height: '20px'
+                        }}
+                        className="hover:opacity-75 transition-opacity"
+                        title="Вернуться на сайт"
                       >
-                        <Minimize2 className="w-3.5 h-3.5" />
-                        <span>Свернуть в виджет</span>
+                        <img
+                          src="/ic_srv_close_default_20_w.svg"
+                          alt="Close"
+                          style={{
+                            width: '20px',
+                            height: '20px',
+                            display: 'block'
+                          }}
+                        />
                       </button>
                     </div>
                   </div>
 
-                  {/* Chat Session Url breadcrumb */}
-                  <div className="bg-slate-50 px-4 py-1.5 border-b border-slate-100 text-[10px] text-slate-400 flex items-center justify-between font-mono">
-                    <span>Адрес текущего экрана в СберБизнесе:</span>
-                    <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100/50 truncate max-w-[280px]">
-                      {currentUrl}
-                    </span>
-                  </div>
+                  {/* Rectangle 3 - разделяет шапку от самого чата */}
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '1px',
+                      background: '#D0D7DD',
+                      flexShrink: 0
+                    }}
+                  />
 
-                  {/* Chat Box Conversation Messages View */}
-                  <div className="flex-1 p-4 overflow-y-auto max-h-[420px] min-h-[350px] space-y-4 bg-white">
-                    {(!currentSession || currentSession.messages.length === 0) && (
-                      <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl text-center space-y-3 my-2">
-                        <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
-                          <Sparkles className="w-5 h-5" />
-                        </div>
-                        <div className="max-w-md mx-auto">
-                          <h4 className="font-bold text-slate-700 text-xs uppercase tracking-wider">
-                            Умный сценарий СберИИ
-                          </h4>
-                          <p className="text-xs text-slate-500 mt-1">
-                            Нажмите на готовый пример вопроса ниже, соответствующий вашей текущей роли:
-                          </p>
-                        </div>
+                  {/* Main section: 528px workspace containing logs zone and input zone on left, with scroll track on right */}
+                  <div style={{ display: 'flex', width: '100%', height: '528px', flexShrink: 0, overflow: 'hidden' }}>
 
-                        {currentProfile.role === "director" ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm mx-auto text-xs">
-                            <button
-                              onClick={() => handleSendMessage(undefined, "Какие условия овердрафта и кредитования доступны нашей компании ООО 'ТехноПром'?")}
-                              className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
-                            >
-                              → Условия овердрафта
-                            </button>
-                            <button
-                              onClick={() => handleSendMessage(undefined, "Чем выгоден лизинг оборудования для ООО 'ТехноПром' по сравнению с кредитом?")}
-                              className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
-                            >
-                              → Плюсы лизинга
-                            </button>
-                          </div>
-                        ) : currentProfile.role === "accountant" ? (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm mx-auto text-xs">
-                            <button
-                              onClick={() => handleSendMessage(undefined, "Как сдать ближайший отчет по налогам и какие требования РСБУ мы должны учесть?")}
-                              className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
-                            >
-                              → Отчетность РСБУ
-                            </button>
-                            <button
-                              onClick={() => handleSendMessage(undefined, "Какие регламенты по валютному контролю при сумме контракта 45 000 USD?")}
-                              className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
-                            >
-                              → Валютный контроль
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm mx-auto text-xs">
-                            <button
-                              onClick={() => handleSendMessage(undefined, "Какие обучающие программы и курсы СберУниверситета открыты по моему профилю?")}
-                              className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
-                            >
-                              → СберУниверситет курсы
-                            </button>
-                            <button
-                              onClick={() => handleSendMessage(undefined, "Как запустить бронирование отеля и авиабилетов в системе СберБизнес Командировки?")}
-                              className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
-                            >
-                              → Бронь командировки
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    {/* Left part: Messages View + Input bar */}
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
 
-                    {/* Chat Logs list */}
-                    {currentSession?.messages.map((msg) => {
-                      const isUser = msg.role === "user";
-                      const isOperatorText = msg.role === "operator";
-
-                      return (
-                        <div
-                          key={msg.id}
-                          className={`flex ${isUser ? "justify-end" : "justify-start"} items-start gap-2.5`}
-                        >
-                          {!isUser && (
-                            <div className={`p-1.5 rounded-lg flex-shrink-0 ${
-                              isOperatorText ? "bg-amber-100 text-amber-800" : "bg-emerald-50 text-emerald-700"
-                            }`}>
-                              {isOperatorText ? <Users className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                      {/* Messages block */}
+                      <div
+                        onScroll={(e) => {
+                          const target = e.currentTarget;
+                          const scrollHeight = target.scrollHeight;
+                          const clientHeight = target.clientHeight;
+                          const scrollTop = target.scrollTop;
+                          const maxScroll = scrollHeight - clientHeight;
+                          if (maxScroll > 0) {
+                            setChatScrollProgress(scrollTop / maxScroll);
+                          } else {
+                            setChatScrollProgress(0);
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          overflowY: 'auto',
+                          padding: '16px 20px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '16px',
+                          scrollbarWidth: 'none',
+                          msOverflowStyle: 'none'
+                        }}
+                        className="[&::-webkit-scrollbar]:hidden"
+                      >
+                        {(!currentSession || currentSession.messages.length === 0) && (
+                          <div className="bg-slate-50 border border-slate-200/60 p-4 rounded-xl text-center space-y-3 my-2">
+                            <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+                              <Sparkles className="w-5 h-5" />
                             </div>
-                          )}
-
-                          <div className={`max-w-[85%] rounded-xl p-3.5 text-xs shadow-sm ${
-                            isUser
-                              ? "bg-emerald-700 text-white rounded-br-none"
-                              : isOperatorText
-                                ? "bg-amber-50/90 border border-amber-200 text-slate-800 rounded-bl-none"
-                                : "bg-slate-50 border border-slate-100 text-slate-800 rounded-bl-none"
-                          }`}>
-                            <div className="flex items-center justify-between mb-1.5 border-b pb-1 border-slate-200/50">
-                              <span className={`font-bold ${isUser ? "text-emerald-100" : isOperatorText ? "text-amber-800" : "text-emerald-800"}`}>
-                                {isUser
-                                  ? "Вы"
-                                  : isOperatorText
-                                    ? "Лайв оператор: Александр"
-                                    : "ИИ-Ассистент СберБизнес"}
-                              </span>
-                              <span className="text-[9px] opacity-60 font-mono">{msg.timestamp}</span>
+                            <div className="max-w-md mx-auto">
+                              <h4 className="font-bold text-slate-700 text-xs uppercase tracking-wider">
+                                Умный сценарий СберИИ
+                              </h4>
+                              <p className="text-xs text-slate-500 mt-1">
+                                Нажмите на готовый пример вопроса ниже, соответствующий вашей текущей роли:
+                              </p>
                             </div>
 
-                            <p className={`mt-1 leading-relaxed ${isUser ? "text-emerald-50" : "text-slate-850"}`}>
-                              {renderMessageContent(msg.content, isUser)}
-                            </p>
-
-                            {msg.paymentDraft && (
-                              <PaymentDraftCard draft={msg.paymentDraft} />
-                            )}
-
-                            {/* Automation metadata */}
-                            {msg.callOperator && (
-                              <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-800 flex items-start space-x-2">
-                                <Zap className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
-                                <div>
-                                  <p className="font-bold">Инициирована бесшовная передача диалога!</p>
-                                  <p className="mt-0.5 opacity-90">
-                                    Сформирован gRPC-пакет с метаданными. Посмотрите на шину в правой колонке для парсинга JSON-пакета передачи.
-                                  </p>
-                                </div>
+                            {currentProfile.role === "director" ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm mx-auto text-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendMessage(undefined, "Какие условия овердрафта и кредитования доступны нашей компании ООО 'ТехноПром'?")}
+                                  className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
+                                >
+                                  → Условия овердрафта
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendMessage(undefined, "Чем выгоден лизинг оборудования для ООО 'ТехноПром' по сравнению с кредитом?")}
+                                  className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
+                                >
+                                  → Плюсы лизинга
+                                </button>
+                              </div>
+                            ) : currentProfile.role === "accountant" ? (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm mx-auto text-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendMessage(undefined, "Как сдать ближайший отчет по налогам и какие требования РСБУ мы должны учесть?")}
+                                  className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
+                                >
+                                  → Отчетность РСБУ
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendMessage(undefined, "Какие регламенты по валютному контролю при сумме контракта 45 000 USD?")}
+                                  className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
+                                >
+                                  → Валютный контроль
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-sm mx-auto text-xs">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendMessage(undefined, "Какие обучающие программы и курсы СберУниверситета открыты по моему профилю?")}
+                                  className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
+                                >
+                                  → СберУниверситет курсы
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendMessage(undefined, "Как запустить бронирование отеля и авиабилетов в системе СберБизнес Командировки?")}
+                                  className="p-2 border border-slate-200 hover:border-emerald-500 hover:bg-white rounded-lg text-left transition-colors text-slate-600 font-medium cursor-pointer"
+                                >
+                                  → Бронь командировки
+                                </button>
                               </div>
                             )}
                           </div>
-                        </div>
-                      );
-                    })}
+                        )}
 
-                    {/* Operator connection bubble logs */}
-                    {isOperatorActive && operatorMessages.map((msg) => (
-                      <div key={msg.id} className="flex justify-start items-start gap-2.5 animate-fade-in">
-                        <div className="p-1.5 rounded-lg flex-shrink-0 bg-gradient-to-tr from-amber-500 to-orange-600 text-white">
-                          <Users className="w-4 h-4" />
-                        </div>
-                        <div className="max-w-[85%] rounded-xl p-3.5 text-xs shadow-sm bg-orange-50 border border-amber-300 text-slate-800 rounded-bl-none">
-                          <div className="flex items-center justify-between mb-1.5 border-b pb-1 border-amber-200">
-                            <span className="font-bold text-amber-900">Оператор СберБизнес Премиум (Живой человек)</span>
-                            <span className="text-[9px] text-amber-700 font-mono">{msg.timestamp}</span>
+                        {/* Iterate Chat Logs */}
+                        {currentSession?.messages.map((msg) => {
+                          const isUser = msg.role === "user";
+                          const isOperatorText = msg.role === "operator";
+
+                          if (isUser) {
+                            return (
+                              <div
+                                key={msg.id}
+                                className="flex justify-end w-full"
+                              >
+                                {/* User message bubble: Rectangle 6557 */}
+                                <div
+                                  style={{
+                                    width: '450px',
+                                    borderRadius: '10px',
+                                    background: '#21A19A',
+                                    padding: '12px 16px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    boxSizing: 'border-box'
+                                  }}
+                                  className="shadow-sm"
+                                >
+                                  {/* Top header row */}
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                    {/* Sender Title */}
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        width: '63px',
+                                        height: '24px',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        color: '#FFF',
+                                        fontFamily: '"Roboto", "SB Sans Interface", sans-serif',
+                                        fontSize: '20px',
+                                        fontWeight: 500,
+                                        lineHeight: '24px',
+                                        letterSpacing: '-0.25px'
+                                      }}
+                                    >
+                                      Вы
+                                    </div>
+
+                                    {/* Date */}
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        width: '176px',
+                                        height: '14px',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        color: '#FFF',
+                                        fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                        fontSize: '11px',
+                                        fontWeight: 400,
+                                        lineHeight: '24px',
+                                        textAlign: 'right'
+                                      }}
+                                    >
+                                      {msg.timestamp}
+                                    </div>
+                                  </div>
+
+                                  {/* Message content text */}
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      color: '#FFF',
+                                      fontFeatureSettings: "'liga' off, 'clig' off",
+                                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                      fontSize: '15px',
+                                      fontWeight: 400,
+                                      lineHeight: '24px',
+                                      flexDirection: 'column',
+                                      justifyContent: 'center'
+                                    }}
+                                  >
+                                    {renderMessageContent(msg.content, isUser)}
+                                  </div>
+
+                                  {msg.paymentDraft && (
+                                    <PaymentDraftCard draft={msg.paymentDraft} />
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          } else {
+                            {/* Bot/Operator message bubble: Rectangle 6557 - ответы чата */}
+                            const titleText = isOperatorText ? "Александр" : "СберГид";
+                            return (
+                              <div
+                                key={msg.id}
+                                className="flex justify-start w-full"
+                              >
+                                <div
+                                  style={{
+                                    width: '450px',
+                                    borderRadius: '10px',
+                                    background: '#E4E8EB',
+                                    padding: '12px 16px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    boxSizing: 'border-box'
+                                  }}
+                                  className="shadow-sm"
+                                >
+                                  {/* Top header row */}
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                    {/* Sender Title */}
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        width: '109px',
+                                        height: '24px',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        color: '#1F1F22',
+                                        fontFamily: '"Roboto", "SB Sans Interface", sans-serif',
+                                        fontSize: '20px',
+                                        fontWeight: 500,
+                                        lineHeight: '24px',
+                                        letterSpacing: '-0.25px'
+                                      }}
+                                    >
+                                      {titleText}
+                                    </div>
+
+                                    {/* Date */}
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        width: '176px',
+                                        height: '14px',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        color: '#1F1F22',
+                                        fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                        fontSize: '11px',
+                                        fontWeight: 400,
+                                        lineHeight: '24px',
+                                        textAlign: 'right'
+                                      }}
+                                    >
+                                      {msg.timestamp}
+                                    </div>
+                                  </div>
+
+                                  {/* Underline separating sender name and message content */}
+                                  <div
+                                    style={{
+                                      width: '100%',
+                                      height: '1px',
+                                      background: '#1F1F22',
+                                      margin: '6px 0 10px 0'
+                                    }}
+                                  />
+
+                                  {/* Message content text */}
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      color: '#1F1F22',
+                                      fontFeatureSettings: "'liga' off, 'clig' off",
+                                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                      fontSize: '15px',
+                                      fontWeight: 400,
+                                      lineHeight: '24px',
+                                      flexDirection: 'column',
+                                      justifyContent: 'center'
+                                    }}
+                                  >
+                                    {renderMessageContent(msg.content, isUser)}
+                                  </div>
+
+                                  {msg.paymentDraft && (
+                                    <PaymentDraftCard draft={msg.paymentDraft} />
+                                  )}
+
+                                  {msg.callOperator && (
+                                    <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-[10px] text-amber-800 flex items-start space-x-2">
+                                      <Zap className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+                                      <div>
+                                        <p className="font-bold">Инициирована бесшовная передача диалога!</p>
+                                        <p className="mt-0.5 opacity-90">
+                                          Сформирован gRPC-пакет с метаданными. Посмотрите на шину в правой колонке для парсинга JSON-пакета передачи.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          }
+                        })}
+
+                        {/* Live Operator message bubbles */}
+                        {isOperatorActive && operatorMessages.map((msg) => (
+                          <div
+                            key={msg.id}
+                            className="flex justify-start w-full"
+                          >
+                            <div
+                              style={{
+                                width: '450px',
+                                borderRadius: '10px',
+                                background: '#FFD9A0',
+                                padding: '12px 16px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                boxSizing: 'border-box'
+                              }}
+                              className="shadow-sm"
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '109px',
+                                    height: '24px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#1F1F22',
+                                    fontFamily: '"Roboto", "SB Sans Interface", sans-serif',
+                                    fontSize: '20px',
+                                    fontWeight: 500,
+                                    lineHeight: '24px',
+                                    letterSpacing: '-0.25px'
+                                  }}
+                                >
+                                  Александр
+                                </div>
+                                <div
+                                  style={{
+                                    display: 'flex',
+                                    width: '176px',
+                                    height: '14px',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    color: '#1F1F22',
+                                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                    fontSize: '11px',
+                                    fontWeight: 400,
+                                    lineHeight: '24px',
+                                    textAlign: 'right'
+                                  }}
+                                >
+                                  {msg.timestamp}
+                                </div>
+                              </div>
+
+                              <div
+                                style={{
+                                  width: '100%',
+                                  height: '1px',
+                                  background: '#1F1F22',
+                                  margin: '6px 0 10px 0'
+                                }}
+                              />
+
+                              <p
+                                style={{
+                                  color: '#1F1F22',
+                                  fontFamily: '"SB Sans Interface", sans-serif',
+                                  fontSize: '15px',
+                                  fontWeight: 400,
+                                  lineHeight: '24px'
+                                }}
+                              >
+                                {msg.content}
+                              </p>
+                              <div className="mt-2.5 pt-2 border-t border-amber-900/10 flex items-center text-[10px] text-amber-900 font-semibold">
+                                <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
+                                Линия переведена на оператора техподдержки. ИИ заблокирован для ветки.
+                              </div>
+                            </div>
                           </div>
-                          <p className="leading-relaxed font-medium text-slate-800">
-                            {msg.content}
-                          </p>
-                          <div className="mt-2.5 pt-2 border-t border-amber-200 flex items-center text-[10px] text-amber-900 font-semibold">
-                            <span className="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-ping"></span>
-                            Линия переведена на оператора техподдержки. ИИ заблокирован для ветки.
+                        ))}
+
+                        {isTyping && (
+                          <div className="flex justify-start items-center space-x-2 text-xs text-slate-400 animate-pulse">
+                            <div className="p-1 rounded bg-emerald-50 text-emerald-600">
+                              <Bot className="w-3.5 h-3.5 animate-spin" />
+                            </div>
+                            <span>СберБанк ИИ анализирует налоги и счета вашей компании...</span>
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                        )}
 
-                    {isTyping && (
-                      <div className="flex justify-start items-center space-x-2 text-xs text-slate-400 animate-pulse">
-                        <div className="p-1 rounded bg-emerald-50 text-emerald-600">
-                          <Bot className="w-3.5 h-3.5 animate-spin" />
-                        </div>
-                        <span>СберБанк ИИ анализирует налоги и счета вашей компании...</span>
+                        <div ref={chatBottomRef} />
                       </div>
-                    )}
 
-                    <div ref={chatBottomRef} />
+                      {/* Input zone: Content */}
+                      <form
+                        onSubmit={handleSendMessage}
+                        style={{
+                          display: 'flex',
+                          padding: '8px 12px',
+                          alignItems: 'center',
+                          gap: '10px',
+                          alignSelf: 'stretch',
+                          borderRadius: '8px',
+                          border: '1px solid #D0D7DD',
+                          background: '#FFF',
+                          margin: '12px 14px 12px 14px',
+                          boxSizing: 'border-box',
+                          flexShrink: 0
+                        }}
+                      >
+                        <input
+                          type="text"
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          placeholder="Введите ваш запрос"
+                          style={{
+                            flex: '1 0 0',
+                            border: 'none',
+                            outline: 'none',
+                            color: '#1F1F22',
+                            fontFamily: '"SB Sans Interface", sans-serif',
+                            fontSize: '16px',
+                            fontWeight: 400,
+                            lineHeight: '24px',
+                            background: 'transparent'
+                          }}
+                          className="placeholder:text-[#7D838A]"
+                        />
+
+                        {/* image5 - кнопка отправить */}
+                        <button
+                          type="submit"
+                          disabled={isTyping}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '44px',
+                            height: '40px',
+                            opacity: isTyping ? 0.5 : 1,
+                            flexShrink: 0
+                          }}
+                          className="hover:scale-102 active:scale-98 transition-all"
+                        >
+                          <img
+                            src="/image5.png"
+                            alt="Send Query"
+                            style={{
+                              width: '44px',
+                              height: '40px',
+                              aspectRatio: '11/10',
+                              display: 'block',
+                              objectFit: 'contain'
+                            }}
+                          />
+                        </button>
+                      </form>
+
+                    </div>
+
+                    {/* Right part: Custom Scrollbar with track background + thumb */}
+                    <div style={{ position: 'relative', width: '10px', height: '100%', flexShrink: 0 }}>
+                      <div style={{ position: 'relative', width: '10px', height: '100%', pointerEvents: 'none' }}>
+                        {/* Background slider track */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="10"
+                          height="528"
+                          viewBox="0 0 10 528"
+                          fill="none"
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '10px',
+                            height: '100%',
+                            display: 'block'
+                          }}
+                        >
+                          <path d="M0 0H10V525C10 526.657 8.65685 528 7 528H0V0Z" fill="#E4E8EB"/>
+                        </svg>
+
+                        {/* Rectangle 3.1 - слайдер */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: `${Math.round(chatScrollProgress * (528 - 96))}px`,
+                            left: 0,
+                            width: '10px',
+                            height: '96px',
+                            borderRadius: '50px',
+                            background: '#B2B8BF',
+                            pointerEvents: 'none',
+                            transition: 'top 0.05s linear'
+                          }}
+                        />
+                      </div>
+                    </div>
+
                   </div>
-
-                  {/* Chat Input Bar */}
-                  <form onSubmit={handleSendMessage} className="p-3 border-t border-slate-100 flex items-center space-x-2 bg-slate-50 rounded-b-xl" id="chat-input-form">
-                    <input
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
-                      placeholder={
-                        isOperatorActive
-                          ? "Чат с оператором поддержкой. Задайте вопрос..."
-                          : `Задайте вопрос как ${currentProfile.role === "director" ? "Владелец" : currentProfile.role === "accountant" ? "Бухгалтер" : "Сотрудник"}...`
-                      }
-                      className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-emerald-500 focus:outline-none text-slate-800"
-                    />
-                    <button
-                      type="submit"
-                      disabled={isTyping}
-                      className="p-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 cursor-pointer"
-                      id="send-button"
-                    >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </form>
 
                 </div>
               </section>
@@ -2123,89 +3734,366 @@ export default function App() {
               <section className="lg:col-span-3 flex flex-col space-y-4" id="right-column">
 
                 {/* Term Help Box */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center">
-                      <HelpCircle className="w-4 h-4 mr-1.5 text-emerald-600" />
-                      Помощник терминов
-                    </h3>
-                    {selectedTerm && (
-                      <button
-                        onClick={() => setSelectedTerm(null)}
-                        className="text-[10px] text-slate-400 hover:text-slate-650 font-semibold border px-1.5 py-0.5 rounded hover:bg-slate-50 cursor-pointer"
-                      >
-                        Сбросить
-                      </button>
-                    )}
+                <div
+                  id="glossary-card-6559"
+                  style={{
+                    width: '327px',
+                    height: '268px',
+                    borderRadius: '20px',
+                    background: '#FFF',
+                    boxShadow: '0 0 6px 2px rgba(0, 0, 0, 0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* Header: Exact match to Screenshot 2 layout */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 20px', height: '64px', boxSizing: 'border-box', flexShrink: 0 }}>
+                    {/* Rectangle.png (book page layout) with vector overlays */}
+                    <div style={{ position: 'relative', width: '28px', height: '37px', aspectRatio: '28/37', flexShrink: 0 }}>
+                      <img
+                        src="/Rectangle.png"
+                        alt="Rectangle Book"
+                        style={{
+                          width: '28px',
+                          height: '37px',
+                          display: 'block',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      <img
+                        src="/Vector-1.svg"
+                        alt="Vector Circle"
+                        style={{
+                          position: 'absolute',
+                          width: '14px',
+                          height: '13px',
+                          left: '7px',
+                          top: '9px',
+                          pointerEvents: 'none',
+                          zIndex: 1
+                        }}
+                      />
+                      <img
+                        src="/Vector.svg"
+                        alt="Vector Pages Line"
+                        style={{
+                          position: 'absolute',
+                          width: '8px',
+                          height: '5px',
+                          left: '10px',
+                          top: '25px',
+                          pointerEvents: 'none',
+                          zIndex: 1
+                        }}
+                      />
+                    </div>
+
+                    {/* Header text layout */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '256px',
+                        height: '35px',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        color: '#1F1F22',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontSize: '17px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '32px'
+                      }}
+                    >
+                      СЛОВАРЬ ТЕРМИНОВ
+                    </div>
                   </div>
 
-                  {selectedTerm ? (
-                    <div className="space-y-2.5 animate-fade-in" id="term-definition-box">
-                      <span className="inline-block px-2.5 py-0.5 bg-emerald-100 border border-emerald-250 text-emerald-850 text-[10px] font-bold rounded">
-                        {selectedTerm.word.toUpperCase()}
-                      </span>
-                      <h4 className="font-bold text-slate-800 text-xs">{selectedTerm.shortDescription}</h4>
-                      <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                        {selectedTerm.detailedDescription}
+                  {/* Line 5 divider that separates header from content */}
+                  <div
+                    style={{
+                      width: '327px',
+                      height: '1px',
+                      background: 'rgba(133, 137, 142, 0.90)',
+                      flexShrink: 0
+                    }}
+                  />
+
+                  {/* Explanation block with precise color styling */}
+                  <div style={{ padding: '24px 20px', flex: 1, display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '304px',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontSize: '14.5px',
+                        lineHeight: '20px'
+                      }}
+                    >
+                      <p style={{ margin: 0, lineHeight: '20px' }}>
+                        <span
+                          style={{
+                            color: '#035C7A',
+                            fontWeight: 600,
+                            fontFeatureSettings: "'liga' off, 'clig' off",
+                            fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                            fontSize: '14.5px',
+                            lineHeight: '20px'
+                          }}
+                        >
+                          {(selectedTerm ? selectedTerm.word : "овердрафт").toUpperCase()}
+                        </span>
+                        <span
+                          style={{
+                            color: '#565B62',
+                            fontWeight: 400,
+                            fontFeatureSettings: "'liga' off, 'clig' off",
+                            fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                            fontSize: '14.5px',
+                            lineHeight: '20px'
+                          }}
+                        >
+                          {" – "}{
+                            selectedTerm
+                              ? (selectedTerm.word.toLowerCase() === "овердрафт"
+                                  ? "автоматический кредит на счёт при временной нехватке средств."
+                                  : selectedTerm.shortDescription)
+                              : "автоматический кредит на счёт при временной нехватке средств."
+                          }
+                        </span>
                       </p>
                     </div>
-                  ) : (
-                    <div className="text-center py-6 text-slate-400 space-y-2">
-                      <HelpCircle className="w-8 h-8 mx-auto stroke-1 text-slate-350" />
-                      <p className="text-xs leading-normal">
-                        Нажмите на подсвеченный <span className="border-b-2 border-dashed border-emerald-500 text-emerald-700 font-semibold px-0.5 bg-emerald-50/50 rounded">Термин</span> в диалоге для мгновенного раскрытия сути!
-                      </p>
-                    </div>
-                  )}
+
+                  </div>
                 </div>
 
                 {/* Smart Cross-Sales widget */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center">
-                    <TrendingUp className="w-4 h-4 mr-1.5 text-emerald-600" />
-                    Спецпредложения
-                  </h3>
+                <div
+                  id="sber-special-offers-card"
+                  style={{
+                    width: '327px',
+                    height: '520px',
+                    borderRadius: '20px',
+                    background: '#FFF',
+                    boxShadow: '0px 0px 6px rgba(0, 0, 0, 0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    boxSizing: 'border-box',
+                    padding: '16px 0px 20px 0px',
+                    position: 'relative',
+                    flexShrink: 0
+                  }}
+                >
+                  {/* Header: image14 icon and СПЕЦПРЕДЛОЖЕНИЯ text */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '0 20px', height: '41px', boxSizing: 'border-box', flexShrink: 0 }}>
+                    <img
+                      src="/image14.png"
+                      alt="Gift Offer Icon"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='39' height='41' viewBox='0 0 24 24' fill='none' stroke='%23095A75' stroke-width='2'><rect x='3' y='8' width='18' height='12' rx='2'/><path d='M12 2v6'/><path d='M12 8H3'/><path d='M12 8h9'/></svg>";
+                      }}
+                      style={{
+                        width: '39.131px',
+                        height: '41px',
+                        aspectRatio: '39.13/41.00',
+                        display: 'block',
+                        objectFit: 'cover'
+                      }}
+                    />
+                    <div
+                      style={{
+                        display: 'flex',
+                        width: '256px',
+                        height: '35px',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        color: '#1F1F22',
+                        fontFeatureSettings: "'liga' off, 'clig' off",
+                        fontFamily: '"SB Sans Interface", -apple-system, BlinkMacSystemFont, sans-serif',
+                        fontSize: '17px',
+                        fontStyle: 'normal',
+                        fontWeight: 600,
+                        lineHeight: '32px'
+                      }}
+                    >
+                      СПЕЦПРЕДЛОЖЕНИЯ
+                    </div>
+                  </div>
 
-                  <div className="space-y-3" id="offers-list">
-                    {currentProfile.availableOffers.map((offer) => {
+                  {/* Line 6 - divider */}
+                  <div
+                    style={{
+                      width: '327px',
+                      height: '1px',
+                      background: 'rgba(133, 137, 142, 0.90)',
+                      margin: '12px 0 16px 0',
+                      flexShrink: 0
+                    }}
+                  />
+
+                  {/* Offers List */}
+                  <div
+                    style={{
+                      flex: 1,
+                      overflowY: 'auto',
+                      overflowX: 'hidden',
+                      padding: '0 20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                      boxSizing: 'border-box'
+                    }}
+                    className="scrollbar-thin"
+                    id="offers-list"
+                  >
+                    {currentProfile.availableOffers.map((offer, index) => {
                       return (
                         <div
                           key={offer.id}
-                          className="border border-slate-100 rounded-lg p-3 hover:shadow-sm hover:border-slate-200 transition-all text-xs flex items-start space-x-2.5 bg-slate-50/50"
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: '100%',
+                            background: '#FFFFFF',
+                            border: '1px solid rgba(86, 91, 98, 0.12)',
+                            boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.04)',
+                            borderRadius: '20px',
+                            padding: '12px 14px',
+                            boxSizing: 'border-box',
+                            flexShrink: 0,
+                            gap: '4px'
+                          }}
                         >
-                          <div className="mt-0.5 p-1.5 bg-white text-emerald-700 border border-slate-150 rounded shadow-xs flex-shrink-0">
-                            {offer.icon === "TrendingUp" && <TrendingUp className="w-4 h-4" />}
-                            {offer.icon === "Truck" && <Truck className="w-4 h-4" />}
-                            {offer.icon === "Zap" && <Zap className="w-4 h-4" />}
-                            {offer.icon === "Users" && <Users className="w-4 h-4" />}
-                            {offer.icon === "BookOpen" && <BookOpen className="w-4 h-4" />}
-                            {offer.icon === "ShieldAlert" && <ShieldAlert className="w-4 h-4" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className={`text-[8.5px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded border ${offer.badgeColor}`}>
-                                {offer.badge}
-                              </span>
+                          {/* Top Row: Icon, Title, and Badge */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {index === 0 ? (
+                                <div
+                                  style={{
+                                    width: '24px',
+                                    height: '24px',
+                                    flexShrink: 0,
+                                    aspectRatio: '1/1',
+                                    backgroundImage: "url('/Gemini_Generated_Image_j1zfpkj1zfpkj1zf-3.png')",
+                                    backgroundPosition: '50% 50%',
+                                    backgroundSize: 'cover',
+                                    backgroundRepeat: 'no-repeat',
+                                    borderRadius: '4px',
+                                    backgroundColor: 'lightgray'
+                                  }}
+                                />
+                              ) : index === 1 ? (
+                                <div
+                                  style={{
+                                    width: '24px',
+                                    height: '22px',
+                                    flexShrink: 0,
+                                    aspectRatio: '12/11',
+                                    backgroundImage: "url('/4690d4b49454db146456887c69a3a5b2-2.png')",
+                                    backgroundPosition: '-8px -0.025px',
+                                    backgroundSize: '175% 100.227%',
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundColor: 'lightgray'
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  style={{
+                                    width: '27px',
+                                    height: '27px',
+                                    flexShrink: 0,
+                                    aspectRatio: '1/1',
+                                    backgroundImage: "url('/image15.png')",
+                                    backgroundPosition: '50% 50%',
+                                    backgroundSize: 'cover',
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundColor: 'lightgray'
+                                  }}
+                                />
+                              )}
+                              <div
+                                style={{
+                                  color: 'rgba(27, 39, 51, 0.90)',
+                                  fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                  fontSize: '14px',
+                                  fontStyle: 'normal',
+                                  fontWeight: 600,
+                                  lineHeight: '32px'
+                                }}
+                              >
+                                {offer.title}
+                              </div>
                             </div>
-                            <h4 className="font-bold text-slate-700 text-xs mt-1.5">{offer.title}</h4>
-                            <p className="text-[10.5px] text-slate-500 mt-1 leading-normal">{offer.description}</p>
 
-                            <button
-                              onClick={() => handleSendMessage(undefined, `Расскажи подробнее, как подключить продукт: ${offer.title}. Интересуют тарифы.`)}
-                              className="mt-2 text-[10px] text-emerald-700 hover:text-emerald-800 font-bold flex items-center space-x-1 cursor-pointer"
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '54px',
+                                height: '18px',
+                                flexDirection: 'column',
+                                justifyContent: 'flex-end',
+                                color: '#095A75',
+                                fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                                fontSize: '9px',
+                                fontStyle: 'normal',
+                                fontWeight: 600,
+                                lineHeight: '24px',
+                                textAlign: 'right'
+                              }}
                             >
-                              <span>Подключить / Подробнее</span>
-                              <ArrowRight className="w-3 h-3" />
-                            </button>
+                              {offer.badge}
+                            </div>
                           </div>
+
+                          {/* Description */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              width: '276px',
+                              minHeight: '48px',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              color: '#7D838A',
+                              fontFeatureSettings: "'liga' off, 'clig' off",
+                              fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                              fontSize: '12px',
+                              fontStyle: 'normal',
+                              fontWeight: 400,
+                              lineHeight: '20px'
+                            }}
+                          >
+                            {offer.description}
+                          </div>
+
+                          {/* Action Button */}
+                          <button
+                            onClick={() => handleSendMessage(undefined, `Расскажи подробнее, как подключить продукт: ${offer.title}. Интересуют тарифы.`)}
+                            style={{
+                              color: '#095A75',
+                              fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                              fontSize: '10px',
+                              fontStyle: 'normal',
+                              fontWeight: 400,
+                              lineHeight: '24px',
+                              cursor: 'pointer',
+                              border: 'none',
+                              background: 'none',
+                              padding: 0,
+                              textAlign: 'left',
+                              width: 'fit-content'
+                            }}
+                          >
+                            Подключить / Подробнее →
+                          </button>
                         </div>
                       );
                     })}
-                  </div>
-
-                  <div className="mt-4 bg-emerald-50 border border-emerald-100/50 rounded-lg p-3 text-[10px] text-slate-600">
-                    <span className="font-bold text-emerald-800 block mb-0.5">Кросс-сейл Контекст:</span>
-                    Директор видит лимиты, кредиты и лизинг. Бухгалтер — зарплатные решения, онлайн-бухгалтерию по РСБУ УСН.
                   </div>
                 </div>
 
@@ -2234,12 +4122,157 @@ export default function App() {
 
           </main>
 
-          {/* Footer credits */}
-          <footer className="bg-slate-900 text-slate-400 text-xs text-center py-4 border-t border-slate-800 mt-auto" id="sber-footer">
-            <p className="opacity-85">
-              © 2026 СберБизнес Консультант • Построено на базе моделей Google Gemini 3.5 Flash с поддержкой PostgreSQL & Python Integration Группы Разработки.
-            </p>
-          </footer>
+          {/* Sber bank contacts and support footer */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              width: '100%',
+              background: '#FFFFFF',
+              marginTop: 'auto',
+              flexShrink: 0
+            }}
+            id="sberbank-contacts-footer"
+          >
+            {/* Divider */}
+            <div
+              style={{
+                display: 'flex',
+                width: '1440px',
+                height: '1px',
+                justifyContent: 'center',
+                alignItems: 'center',
+                background: 'rgba(86, 91, 98, 0.15)',
+              }}
+            />
+
+            {/* Content Panel */}
+            <div
+              style={{
+                width: '1440px',
+                height: '185px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                boxSizing: 'border-box',
+              }}
+            >
+              {/* Inner centered container of 1040px width */}
+              <div
+                style={{
+                  display: 'flex',
+                  width: '1040px',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '24px 0',
+                  boxSizing: 'border-box'
+                }}
+              >
+                {/* 1. Left block: Brand and Website link */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+                  <div style={{
+                    color: '#1F1F22',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                    fontSize: '14px',
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '16px'
+                  }}>
+                    © ОАО «Сбер Банк», 2025
+                  </div>
+                  <a
+                    href="https://sber-bank.by"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      alignSelf: 'stretch',
+                      color: '#1358BF',
+                      fontFeatureSettings: "'liga' off, 'clig' off",
+                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                      fontSize: '12px',
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      lineHeight: '16px',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    sber-bank.by
+                  </a>
+                </div>
+
+                {/* 2. Center block: Support numbers */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                  <div style={{
+                    color: '#1F1F22',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                    fontSize: '14px',
+                    fontStyle: 'normal',
+                    fontWeight: 600,
+                    lineHeight: '16px',
+                    textAlign: 'center'
+                  }}>
+                    Центр клиентской поддержки:
+                  </div>
+                  <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                    <span style={{
+                      color: '#1F1F22',
+                      fontFeatureSettings: "'liga' off, 'clig' off",
+                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                      fontSize: '12px',
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      lineHeight: '16px'
+                    }}>
+                      +375 17 359-99-11
+                    </span>
+                    <span style={{
+                      color: '#1F1F22',
+                      fontFeatureSettings: "'liga' off, 'clig' off",
+                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                      fontSize: '12px',
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      lineHeight: '16px'
+                    }}>
+                      +375 33 348-99-11
+                    </span>
+                    <span style={{
+                      color: '#1F1F22',
+                      fontFeatureSettings: "'liga' off, 'clig' off",
+                      fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                      fontSize: '12px',
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      lineHeight: '16px'
+                    }}>
+                      +375 29 359-99-11
+                    </span>
+                  </div>
+                </div>
+
+                {/* 3. Right block: Personal data policy link */}
+                <a
+                  href="#"
+                  onClick={(e) => e.preventDefault()}
+                  style={{
+                    color: '#1358BF',
+                    fontFeatureSettings: "'liga' off, 'clig' off",
+                    fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
+                    fontSize: '12px',
+                    fontStyle: 'normal',
+                    fontWeight: 400,
+                    lineHeight: '16px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Политика обработки персональных данных
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
