@@ -1186,7 +1186,7 @@ export default function App() {
             className="transition-all transform hover:scale-105 active:scale-95 group"
           >
             <img
-              src="/cat.png"
+              src={isWidgetOpen ? "/cat_open.png" : "/cat.png"}
               alt="Кот Ассистент"
               style={{
                 width: '89px',
@@ -1451,7 +1451,7 @@ export default function App() {
                                   lineHeight: '24px'
                                 }}
                               >
-                                {msg.content}
+                                {renderMessageContent(msg.content, true)}
                               </div>
                             </div>
                           </div>
@@ -1549,7 +1549,7 @@ export default function App() {
                                   lineHeight: '24px'
                                 }}
                               >
-                                {msg.content}
+                                {renderMessageContent(msg.content, false)}
                               </div>
                             </div>
                           </div>
@@ -3117,20 +3117,21 @@ export default function App() {
                 </div>
 
                 {/* SberBusiness Live AI Assistant Chat Box */}
-                <div
-                  id="chat-box-6557"
-                  style={{
-                    width: '772px',
-                    height: '592px',
-                    borderRadius: '8px',
-                    background: '#FFF',
-                    boxShadow: '0 1px 3px 0 rgba(31, 31, 34, 0.25)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    boxSizing: 'border-box',
-                    overflow: 'hidden'
-                  }}
-                >
+                <div className="w-full flex justify-center" id="chat-box-wrapper">
+                  <div
+                    id="chat-box-6557"
+                    style={{
+                      width: '772px',
+                      height: '592px',
+                      borderRadius: '8px',
+                      background: '#FFF',
+                      boxShadow: '0 1px 3px 0 rgba(31, 31, 34, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden'
+                    }}
+                  >
                   {/* Box Header */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', flexShrink: 0 }}>
                     <div
@@ -3728,6 +3729,7 @@ export default function App() {
                   </div>
 
                 </div>
+                </div>
               </section>
 
               {/* RIGHT COLUMN: Cross-sales Products Widget & Interactive Term Inspector */}
@@ -3783,7 +3785,7 @@ export default function App() {
                           width: '8px',
                           height: '5px',
                           left: '10px',
-                          top: '25px',
+                          top: '13px',
                           pointerEvents: 'none',
                           zIndex: 1
                         }}
@@ -3971,8 +3973,8 @@ export default function App() {
                           }}
                         >
                           {/* Top Row: Icon, Title, and Badge */}
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', width: '100%' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
                               {index === 0 ? (
                                 <div
                                   style={{
@@ -4021,11 +4023,15 @@ export default function App() {
                                 style={{
                                   color: 'rgba(27, 39, 51, 0.90)',
                                   fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
-                                  fontSize: '14px',
+                                  fontSize: '13.5px',
                                   fontStyle: 'normal',
                                   fontWeight: 600,
-                                  lineHeight: '32px'
+                                  lineHeight: '1.2',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
                                 }}
+                                title={offer.title}
                               >
                                 {offer.title}
                               </div>
@@ -4033,18 +4039,18 @@ export default function App() {
 
                             <div
                               style={{
-                                display: 'flex',
-                                width: '54px',
-                                height: '18px',
-                                flexDirection: 'column',
+                                display: 'inline-flex',
+                                alignItems: 'center',
                                 justifyContent: 'flex-end',
                                 color: '#095A75',
                                 fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
-                                fontSize: '9px',
+                                fontSize: '10px',
                                 fontStyle: 'normal',
                                 fontWeight: 600,
-                                lineHeight: '24px',
-                                textAlign: 'right'
+                                lineHeight: '1',
+                                textAlign: 'right',
+                                whiteSpace: 'nowrap',
+                                flexShrink: 0
                               }}
                             >
                               {offer.badge}
@@ -4055,17 +4061,17 @@ export default function App() {
                           <div
                             style={{
                               display: 'flex',
-                              width: '276px',
+                              width: '100%',
                               minHeight: '48px',
                               flexDirection: 'column',
                               justifyContent: 'center',
                               color: '#7D838A',
                               fontFeatureSettings: "'liga' off, 'clig' off",
                               fontFamily: '"SB Sans Interface", -apple-system, sans-serif',
-                              fontSize: '12px',
+                              fontSize: '11.5px',
                               fontStyle: 'normal',
                               fontWeight: 400,
-                              lineHeight: '20px'
+                              lineHeight: '16px'
                             }}
                           >
                             {offer.description}
